@@ -1,0 +1,3 @@
+/home/gries/projects/semnon_quest/build/CMakeFiles/semnon_quest.dir
+/home/gries/projects/semnon_quest/build/CMakeFiles/edit_cache.dir
+/home/gries/projects/semnon_quest/build/CMakeFiles/rebuild_cache.dir
