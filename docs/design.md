@@ -31,6 +31,27 @@ Two-phase approach:
 
 Note: ncurses changes input handling (character-by-character vs. line-buffered). Numbered menus migrate cleanly; typed commands would need more care.
 
+### UI Layout (per scene)
+
+```
+[optional ASCII art]
+
+[scene description]
+
+1. Option one
+2. Option two
+...
+
+[Aldric | Ranger | Lv.2]     [Tavern – Common Room]     [C] Character    [Q] Quests    [I] Inventory    [M] Menu
+```
+
+- **1–0** for dialogue/interaction options (max 10 per scene)
+- **C / Q / I** for character sheet, quest log, inventory menus — available on any scene where they make sense
+- **M** for main menu (save, quit, settings) — always present, far right of status bar
+- Status bar is always at the bottom; populated by the game loop from `GameState`, not by `Display` itself (keeps layers decoupled)
+- ASCII art is optional — not every scene requires it
+- Quest log: yes, include one — a reactive game needs it so players can track open threads
+
 ---
 
 ## Skill / Check System
