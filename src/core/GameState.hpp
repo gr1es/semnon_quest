@@ -52,11 +52,11 @@ class GameState
 		std::string _currentLocation;
 		std::set<std::string> _discoveredLocations;
 		int _level;
-		int _experience;
+		int _experience; ///<  cannot go negative
 		std::map<std::string, bool> _flags;
-		std::map<std::string, int> _skills;
-		std::map<std::string, int> _counters;
+		std::map<std::string, int> _skills; ///< cannot go negative
+		std::map<std::string, int> _counters; ///< can go negative
 		std::map<std::string, bool> _feats;
-		std::map<std::string, int> _inventory;
-		std::map<std::string, int> _factionStanding;
+		std::map<std::string, int> _inventory; ///< cannot go negative
+		std::map<std::string, int> _factionStanding; ///< can go negative
 };
