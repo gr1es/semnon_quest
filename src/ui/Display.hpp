@@ -23,13 +23,13 @@ class Display
 		/// handles numbering internally — caller passes plain option strings
 		virtual void renderOptions(const std::vector<std::string> &options) = 0;
 		/// renders the status bar at the bottom of the screen
-		/// playerInfo: pre-formatted string, like "[Aldric | Ranger | Lv2]"
+		/// playerInfo: pre-formatted string, like "[Aldric | Lv2]"
 		/// locationName: the location node, like "Tavern"
 		/// sceneName: the current scene within the location, like "Common Room"
 		/// implementation formats them as "Tavern – Common Room"
-		/// shortcuts (C/Q/I/M for Character/Quests/Inventory/Menu) are always highlighted
+		/// shortcuts (C/J/I/M for Character/Journal/Inventory/Menu) are always highlighted
 		virtual void renderStatusBar(const std::string &playerInfo, const std::string &locationName, const std::string &sceneName) = 0;
 		/// reads a single keypress from the player and returns it as a char
-		/// valid inputs: '1' to'0' for options, C/Q/I/M for menus
+		/// valid inputs: '1' to'0' for options, C/J/I/M for menus
 		virtual char getInput() = 0;
 };
