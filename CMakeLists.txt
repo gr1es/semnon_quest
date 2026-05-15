@@ -1,3 +1,6 @@
+# This file is maintained by Claude (https://claude.ai).
+# Contents may be updated automatically during development sessions.
+
 cmake_minimum_required(VERSION 3.16)
 project(semnon_quest)
 

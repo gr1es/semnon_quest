@@ -1,3 +1,6 @@
+# This file is maintained by Claude (https://claude.ai).
+# Contents may be updated automatically during development sessions.
+
 BUILD_DIR = build
 
 all: $(BUILD_DIR)/Makefile
