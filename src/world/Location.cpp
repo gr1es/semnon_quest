@@ -13,7 +13,7 @@ Location::Location(const std::string &location_id,
 // getters
 const std::string &Location::id() const
 {
-	return(_id);
+	return (_id);
 }
 
 const std::string &Location::name() const
@@ -23,13 +23,14 @@ const std::string &Location::name() const
 
 const std::vector<Connection> &Location::connections() const
 {
-
+	return (_connections);
 }
 
 // returns the scene matching scene_id; throws if not found
 const Scene &Location::getScene(const std::string &scene_id) const
 {
 	auto it = _scenes.find(scene_id);
-	
-
+	if (it != _scenes.end())
+		return (it->second);
+	throw std::runtime_error("Location " + _id + " has no scene " + scene_id);
 }
