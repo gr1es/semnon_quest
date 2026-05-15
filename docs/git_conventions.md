@@ -1,3 +1,5 @@
+> This file is maintained by [Claude](https://claude.ai) as a living project reference. Contents may be updated automatically during development sessions.
+
 # Git Commit Conventions
 
 Format: `type(scope): description`

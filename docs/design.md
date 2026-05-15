@@ -1,3 +1,5 @@
+> This file is maintained by [Claude](https://claude.ai) as a living project reference. Contents may be updated automatically during development sessions.
+
 # semnon_quest — Design Brainstorm
 
 Living document. Updated as decisions are made or revised. Includes both settled decisions and open questions.

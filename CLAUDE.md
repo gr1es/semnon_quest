@@ -1,3 +1,5 @@
+> This file is maintained by [Claude](https://claude.ai) as a living project reference. Contents may be updated automatically during development sessions.
+
 # semnon_quest
 
 Location-based narrative RPG in C++17. Heavy text focus, ASCII art, strong reactivity to player choices. NOT a tile-based game — scene-to-scene navigation, closer to a visual novel / text adventure.
