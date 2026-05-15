@@ -42,11 +42,11 @@ Note: ncurses changes input handling (character-by-character vs. line-buffered).
 2. Option two
 ...
 
-[Aldric | Ranger | Lv.2]     [Tavern – Common Room]     [C] Character    [Q] Quests    [I] Inventory    [M] Menu
+[Aldric | Lv.2]     [Tavern – Common Room]     [C] Character    [J] Journal    [I] Inventory    [M] Menu
 ```
 
 - **1–0** for dialogue/interaction options (max 10 per scene)
-- **C / Q / I** for character sheet, quest log, inventory menus — available on any scene where they make sense
+- **C / J / I** for character sheet, journal, inventory menus — available on any scene where they make sense
 - **M** for main menu (save, quit, settings) — always present, far right of status bar
 - Status bar is always at the bottom; populated by the game loop from `GameState`, not by `Display` itself (keeps layers decoupled)
 - ASCII art is optional — not every scene requires it
