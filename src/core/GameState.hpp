@@ -15,9 +15,11 @@ class GameState
 		const std::string &gender() const;
 		const std::string &race() const;
 		const std::string &background() const;
-		// location methods
+		// location and scene methods
 		const std::string &currentLocation() const;
 		void setCurrentLocation(const std::string &locationId);
+		const std::string &currentScene() const;
+		void setCurrentScene(const std::string &sceneId);
 		bool hasDiscovered(const std::string &locationId) const;
 		void discoverLocation(const std::string &locationId);
 		const std::set<std::string> &discoveredLocations() const;
@@ -50,6 +52,7 @@ class GameState
 		const std::string _playerRace;
 		const std::string _playerBackground;
 		std::string _currentLocation;
+		std::string _currentScene; ///< scene within the current location (e.g. "common_room" inside "tavern")
 		std::set<std::string> _discoveredLocations;
 		int _level;
 		int _experience; ///<  cannot go negative

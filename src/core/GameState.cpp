@@ -30,7 +30,7 @@ const std::string &GameState::background() const
 	return (_playerBackground);
 }
 
-// location methods
+// location and scene methods
 const std::string &GameState::currentLocation() const
 {
 	return (_currentLocation);
@@ -39,6 +39,16 @@ const std::string &GameState::currentLocation() const
 void GameState::setCurrentLocation(const std::string &locationId)
 {
 	_currentLocation = locationId;
+}
+
+const std::string &GameState::currentScene() const
+{
+	return (_currentScene);
+}
+
+void GameState::setCurrentScene(const std::string &sceneId)
+{
+	_currentScene = sceneId;
 }
 
 bool GameState::hasDiscovered(const std::string &locationId) const
