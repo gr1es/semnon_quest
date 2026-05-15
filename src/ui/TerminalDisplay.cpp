@@ -32,7 +32,7 @@ void TerminalDisplay::renderStatusBar(const std::string &player_info, const std:
 {
 	// TODO test whether abbreviation of CJIM elements is necessary
 	// REMINDER: this function owns the brackets! don't feed bracketed strings!
-	std::cout << "[ " << player_info << " ]\t\t" << "[ " << location_name << " | " << scene_name << " ]\t\t" << "[C]haracter\t[J]ournal\t[I]nventory\t[M]enu\n";
+	std::cout << "[ " << player_info << " ]\t[ " << location_name << " | " << scene_name << " ]\t[C]haracter\t[J]ournal\t[I]nventory\t[M]enu\n";
 }
 
 char TerminalDisplay::getInput()
