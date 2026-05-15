@@ -102,7 +102,8 @@ Single object tracking all mutable and immutable player/world state. The save fi
 | `gender` | string | immutable | Set at character creation |
 | `race` | string | immutable | Set at character creation |
 | `background` | string | immutable | Set at character creation |
-| `currentLocation` | string | mutable | Node ID of current location |
+| `currentLocation` | string | mutable | Node ID of current location (e.g. `"tavern"`) |
+| `currentScene` | string | mutable | Scene within the location (e.g. `"common_room"`) |
 | `level` | int | mutable | |
 | `experience` | int | mutable | |
 | `discoveredLocations` | set\<string\> | mutable | Controls node map visibility |
