@@ -17,11 +17,11 @@ class GameState
 		const std::string &background() const;
 		// location and scene methods
 		const std::string &currentLocation() const;
-		void setCurrentLocation(const std::string &locationId);
+		void setCurrentLocation(const std::string &location_id);
 		const std::string &currentScene() const;
-		void setCurrentScene(const std::string &sceneId);
-		bool hasDiscovered(const std::string &locationId) const;
-		void discoverLocation(const std::string &locationId);
+		void setCurrentScene(const std::string &scene_id);
+		bool hasDiscovered(const std::string &location_id) const;
+		void discoverLocation(const std::string &location_id);
 		const std::set<std::string> &discoveredLocations() const;
 		// progression methods
 		int level() const;
@@ -40,11 +40,11 @@ class GameState
 		bool hasFeat(const std::string &feat) const;
 		void addFeat(const std::string &feat);
 		// inventory methods
-		int getItem(const std::string &itemId) const;
-		void modifyInventory(const std::string &itemId, int delta);
+		int getItem(const std::string &item_id) const;
+		void modifyInventory(const std::string &item_id, int delta);
 		// faction methods
-		int factionStanding(const std::string &factionId) const;
-		void modifyFactionStanding(const std::string &factionId, int delta);
+		int factionStanding(const std::string &faction_id) const;
+		void modifyFactionStanding(const std::string &faction_id, int delta);
 
 	private:
 		const std::string _playerName;

@@ -26,10 +26,10 @@ const std::vector<Connection> &Location::connections() const
 
 }
 
-// returns the scene matching sceneId; throws if not found
-const Scene &Location::getScene(const std::string &sceneId) const
+// returns the scene matching scene_id; throws if not found
+const Scene &Location::getScene(const std::string &scene_id) const
 {
-	auto it = _scenes.find(sceneId);
+	auto it = _scenes.find(scene_id);
 	
 
 }

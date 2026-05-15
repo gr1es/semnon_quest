@@ -8,10 +8,10 @@ class TerminalDisplay : public Display
 		// functions
 		// see Display.hpp for comments
 		void clearScreen() override;
-		void renderSceneName(const std::string &sceneName) override;
+		void renderSceneName(const std::string &scene_name) override;
 		void renderArt(const std::string &art) override;
 		void renderDescription(const std::string &text) override;
 		void renderOptions(const std::vector<std::string> &options) override;
-		void renderStatusBar(const std::string &playerInfo, const std::string &locationName, const std::string &sceneName) override;
+		void renderStatusBar(const std::string &player_info, const std::string &location_name, const std::string &scene_name) override;
 		char getInput() override;
 };

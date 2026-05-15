@@ -14,7 +14,7 @@ class Display
 		/// clears the terminal between scenes
 		virtual void clearScreen() = 0;
 		/// tells player first glance where he/she is
-		virtual void renderSceneName(const std::string &sceneName) = 0;
+		virtual void renderSceneName(const std::string &scene_name) = 0;
 		/// renders optional ASCII art above description
 		virtual void renderArt(const std::string &art) = 0;
 		/// renders the main scene description text
@@ -23,12 +23,12 @@ class Display
 		/// handles numbering internally — caller passes plain option strings
 		virtual void renderOptions(const std::vector<std::string> &options) = 0;
 		/// renders the status bar at the bottom of the screen
-		/// playerInfo: pre-formatted string, like "[Aldric | Lv2]"
-		/// locationName: the location node, like "Tavern"
-		/// sceneName: the current scene within the location, like "Common Room"
+		/// player_info: pre-formatted string, like "[Aldric | Lv2]"
+		/// location_name: the location node, like "Tavern"
+		/// scene_name: the current scene within the location, like "Common Room"
 		/// implementation formats them as "Tavern – Common Room"
 		/// shortcuts (C/J/I/M for Character/Journal/Inventory/Menu) are always highlighted
-		virtual void renderStatusBar(const std::string &playerInfo, const std::string &locationName, const std::string &sceneName) = 0;
+		virtual void renderStatusBar(const std::string &player_info, const std::string &location_name, const std::string &scene_name) = 0;
 		/// reads a single keypress from the player and returns it as a char
 		/// valid inputs: '1' to'0' for options, C/J/I/M for menus
 		virtual char getInput() = 0;

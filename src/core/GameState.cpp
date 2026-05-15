@@ -36,9 +36,9 @@ const std::string &GameState::currentLocation() const
 	return (_currentLocation);
 }
 
-void GameState::setCurrentLocation(const std::string &locationId)
+void GameState::setCurrentLocation(const std::string &location_id)
 {
-	_currentLocation = locationId;
+	_currentLocation = location_id;
 }
 
 const std::string &GameState::currentScene() const
@@ -46,19 +46,19 @@ const std::string &GameState::currentScene() const
 	return (_currentScene);
 }
 
-void GameState::setCurrentScene(const std::string &sceneId)
+void GameState::setCurrentScene(const std::string &scene_id)
 {
-	_currentScene = sceneId;
+	_currentScene = scene_id;
 }
 
-bool GameState::hasDiscovered(const std::string &locationId) const
+bool GameState::hasDiscovered(const std::string &location_id) const
 {
-	return (_discoveredLocations.count(locationId) > 0);
+	return (_discoveredLocations.count(location_id) > 0);
 }
 
-void GameState::discoverLocation(const std::string &locationId)
+void GameState::discoverLocation(const std::string &location_id)
 {
-	_discoveredLocations.insert(locationId);
+	_discoveredLocations.insert(location_id);
 }
 
 const std::set<std::string> &GameState::discoveredLocations() const
@@ -151,17 +151,17 @@ void GameState::addFeat(const std::string &feat)
 }
 
 // inventory methods
-int GameState::getItem(const std::string &itemId) const
+int GameState::getItem(const std::string &item_id) const
 {
-	auto it = _inventory.find(itemId);
+	auto it = _inventory.find(item_id);
 	if (it != _inventory.end())
 		return (it->second);
 	return (0);
 }
 
-void GameState::modifyInventory(const std::string &itemId, int delta)
+void GameState::modifyInventory(const std::string &item_id, int delta)
 {
-	auto it = _inventory.find(itemId);
+	auto it = _inventory.find(item_id);
 	if (it != _inventory.end())
 	{
 		it->second += delta;
@@ -169,19 +169,19 @@ void GameState::modifyInventory(const std::string &itemId, int delta)
 			it->second = 0;
 	}
 	else if (delta > 0)
-		_inventory.insert({ itemId, delta });
+		_inventory.insert({ item_id, delta });
 }
 
 // faction methods
-int GameState::factionStanding(const std::string &factionId) const
+int GameState::factionStanding(const std::string &faction_id) const
 {
-	auto it = _factionStanding.find(factionId);
+	auto it = _factionStanding.find(faction_id);
 	if (it != _factionStanding.end())
 		return (it->second);
 	return (0);
 }
 
-void GameState::modifyFactionStanding(const std::string &factionId, int delta)
+void GameState::modifyFactionStanding(const std::string &faction_id, int delta)
 {
-	_factionStanding[factionId] += delta;
+	_factionStanding[faction_id] += delta;
 }
