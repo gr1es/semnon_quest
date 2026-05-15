@@ -4,9 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
-
-// TODO: replace with include later
-class Connection;
+#include "Connection.hpp"
 
 class Location
 {
