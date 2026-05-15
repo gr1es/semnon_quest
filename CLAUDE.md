@@ -4,43 +4,65 @@ Location-based narrative RPG in C++17. Heavy text focus, ASCII art, strong react
 
 ## Current state
 
-The repo contains an SFML-based Engine skeleton from a previous session with a different AI. This is being discarded — start fresh with the terminal-first approach described below.
+All core classes are implemented and compiling cleanly:
+`GameState`, `Display`/`TerminalDisplay`, `Scene`, `Location`, `Connection`, `LocationManager`, `Game`.
+
+Build system: root `Makefile` delegates to CMake. Executable lands at project root.
+- `make` — build
+- `make run` — build and launch
+- `make re` — full rebuild
+
+**Next step:** implement `Game::run()` — the main game loop with hardcoded vertical slice data (3 locations: tavern → street → church → back).
 
 ## Development plan
 
-**Vertical slice first:** 3 hardcoded locations (tavern → street → church → back), pure terminal (std::cout + numbered menus), no JSON yet. Get the loop working, then layer on systems.
+**Vertical slice first:** 3 hardcoded locations, pure terminal (std::cout + numbered menus), no JSON yet. Get the loop working, then layer on systems.
 
 **Phase A:** Pure terminal display
 **Phase B:** Migrate to ncurses (arrow key navigation, color)
 Migration is cheap because game logic goes through a `Display` abstraction layer — swapping implementations is a one-line change in main().
 
-## Architecture (drafted, not yet fully agreed)
+## Architecture
 
-Key classes have been drafted but Chris needs each one explained before committing to implementation. Do not assume agreement on any class design — explain purpose and rationale first.
+Agreed and implemented classes:
+- `GameState` — all mutable player/world state: flags, skills, counters, feats, inventory, faction standing, location/scene tracking
+- `Display` (abstract) / `TerminalDisplay` — rendering interface; `NcursesDisplay` planned for Phase B
+- `Scene` — owns a list of flag-conditional descriptions (tuple: flag, text, art_path); empty flag = default
+- `Location` — owns scenes (map) and connections (vector); no `defaultSceneId()` (Chris to implement if needed)
+- `Connection` — struct: destination + label; requires/effects fields planned
+- `LocationManager` — owns all locations by ID
+- `Game` — orchestrator; owns `GameState`, `TerminalDisplay`, `LocationManager`
 
-Classes in scope: `Display` / `TerminalDisplay` / `NcursesDisplay`, `GameState`, `Location` / `LocationManager`, `DialogueNode` / `DialogueResponse` / `Requirement`.
+Planned but not yet started: `DialogueNode` / `DialogueResponse` / `Requirement`, `NcursesDisplay`.
 
 ## Naming conventions
 
 - Classes: `UpperCamelCase`
 - Methods: `lowerCamelCase`
 - Member variables: `_lowerCamelCase`
+- Method parameters: `snake_case`
 - State flags: specific names — e.g. `"intimidated_barkeep_at_tavern"`, not `"talked_to_npc"`
+- Git commits: Conventional Commits style — `type(scope): description`, lowercase, imperative mood
+
+## Include paths
+
+All subdirectories are registered in CMake's `target_include_directories`, so headers are included by filename only everywhere — no `../` prefixes.
 
 ## Project structure (target)
 
 ```
 semnon_quest/
 ├── CMakeLists.txt
+├── Makefile
 ├── data/
 │   ├── locations/       # per-location JSON
 │   ├── dialogues/       # node-based dialogue trees
 │   ├── items.json
 │   └── ascii_art/
 ├── src/
-│   ├── main/
-│   ├── core/            # game loop, GameState
-│   ├── world/           # Location, LocationManager, Connection
+│   ├── main.cpp         # entry point
+│   ├── core/            # Game, GameState
+│   ├── world/           # Location, LocationManager, Connection, Scene
 │   ├── entities/        # Player, NPC, ACharacter
 │   ├── items/           # Item, Inventory
 │   ├── ui/              # Display interface + implementations
@@ -54,7 +76,7 @@ semnon_quest/
 
 ## Reactivity system (core feature)
 
-`GameState` tracks flags (bool), counters (int), skills (int), inventory (int). Every location exit, dialogue option, and NPC interaction can carry `requires` and `effects` fields. Early obscure choices seed consequences that pay off chapters later.
+`GameState` tracks flags (bool), counters (int), skills (int), inventory (int), faction standing (int), feats (bool). Every location exit, dialogue option, and NPC interaction can carry `requires` and `effects` fields. Early obscure choices seed consequences that pay off chapters later.
 
 ## Working mode
 
