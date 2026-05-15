@@ -21,7 +21,7 @@ class Scene
 		const std::string &getArtPath(const GameState &state) const;
 
 	private:
-		/// internal ID: "common_room"
+		/// internal ID, "common_room"
 		const std::string _id;
 		/// player-facing name: "Common Room"
 		const std::string _name;
