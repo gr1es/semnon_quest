@@ -14,9 +14,9 @@ Build system: root `Makefile` delegates to CMake. Executable lands at project ro
 - `make run` — build and launch
 - `make re` — full rebuild
 
-**Current:** vertical slice is running — tavern location with one scene, ASCII art loading from file, full game loop working (render → input → move). `renderArt()` reads from file path using `std::getline`.
+**Current:** vertical slice is complete and playable — 3 locations (tavern → street → church → back), ASCII art loading from file, full game loop working (render → input → move). `getInput()` reprompts on multi-character input via `peek()`.
 
-**Next step:** add street and church placeholder locations to `buildLocations()` so the tavern exit connection leads somewhere. Then consider JSON loading system.
+**Next step:** JSON loading system to replace hardcoded `buildLocations()`.
 
 ## Development plan
 
