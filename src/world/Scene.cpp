@@ -5,8 +5,9 @@
 Scene::Scene(const std::string &scene_id,
 	const std::string &scene_name,
 	const std::vector<std::tuple<std::string, std::string, std::string>> &scene_descriptions,
-	const std::vector<Option> &options)
-	: _id(scene_id), _name(scene_name), _descriptions(scene_descriptions), _options(options)
+	const std::vector<Option> &options,
+	const std::vector<Connection> &connections)
+	: _id(scene_id), _name(scene_name), _descriptions(scene_descriptions), _options(options), _connections(connections)
 {
 }
 
@@ -24,7 +25,7 @@ const std::string &Scene::name() const
 // std::get<0>(vector entry) for flag name
 // std::get<1>(vector entry) for description
 // std::get<2>(vector entry) for art path
-// NOTE: returns the art path assigned to the  flag with the first match in GameState OR default description
+// NOTE: returns the description assigned to the flag with the first match in GameState OR default description
 const std::string &Scene::getDescription(const GameState &state) const
 {
 	const std::string *fallback = nullptr;
@@ -66,4 +67,9 @@ const std::string &Scene::getArtPath(const GameState &state) const
 const std::vector<Option> &Scene::options() const
 {
 	return (_options);
+}
+
+const std::vector<Connection> &Scene::connections() const
+{
+	return (_connections);
 }

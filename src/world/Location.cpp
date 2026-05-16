@@ -2,18 +2,15 @@
 #include <stdexcept>
 
 // constructor
-
 Location::Location(
 	const std::string &location_id,
 	const std::string &location_name,
 	const std::map<std::string, Scene> &scenes,
-	const std::string &default_scene_id,
-	const std::vector<Connection> &connections)
+	const std::string &default_scene_id)
 	: _id(location_id),
 	  _name(location_name),
 	  _scenes(scenes),
-	  _defaultSceneId(default_scene_id),
-	  _connections(connections)
+	  _defaultSceneId(default_scene_id)
 {
 }
 
@@ -26,11 +23,6 @@ const std::string &Location::id() const
 const std::string &Location::name() const
 {
 	return (_name);
-}
-
-const std::vector<Connection> &Location::connections() const
-{
-	return (_connections);
 }
 
 const std::string &Location::defaultSceneId() const
