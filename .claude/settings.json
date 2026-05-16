@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make 2>&1)",
+      "Bash(make re 2>&1)",
+      "Bash(make run 2>&1)"
+    ]
+  }
+}
