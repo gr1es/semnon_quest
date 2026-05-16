@@ -1,3 +1,5 @@
 # semnon_quest
 
-just the beginning of a private project idea. nothing to see here yet, sorry!
+**Under development**
+
+Text-based RPG with heavy focus on narration and world reactivity. 
