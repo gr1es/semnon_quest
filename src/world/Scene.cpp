@@ -4,8 +4,9 @@
 // constructor
 Scene::Scene(const std::string &scene_id,
 	const std::string &scene_name,
-	const std::vector<std::tuple<std::string, std::string, std::string>> &scene_descriptions)
-	: _id(scene_id), _name(scene_name), _descriptions(scene_descriptions)
+	const std::vector<std::tuple<std::string, std::string, std::string>> &scene_descriptions,
+	const std::vector<Option> &options)
+	: _id(scene_id), _name(scene_name), _descriptions(scene_descriptions), _options(options)
 {
 }
 
@@ -60,4 +61,9 @@ const std::string &Scene::getArtPath(const GameState &state) const
 	if (fallback == nullptr)
 		return (empty);
 	return (*fallback);
+}
+
+const std::vector<Option> &Scene::options() const
+{
+	return (_options);
 }
