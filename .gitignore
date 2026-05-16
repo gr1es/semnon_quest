@@ -1,0 +1,6 @@
+# build artifacts
+build/
+semnon_quest
+
+# Claude Code local settings (machine-specific, may contain absolute paths)
+.claude/settings.local.json
