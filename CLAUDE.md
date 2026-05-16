@@ -14,7 +14,7 @@ Build system: root `Makefile` delegates to CMake. Executable lands at project ro
 - `make run` — build and launch
 - `make re` — full rebuild
 
-**Next step:** implement `Game::run()` — the main game loop with hardcoded vertical slice data (3 locations: tavern → street → church → back).
+**Next step:** populate `buildLocations()` in `Game.cpp` with placeholder data (3 locations: tavern → street → church → back), then write dummy JSON files to match.
 
 ## Development plan
 
@@ -29,11 +29,12 @@ Migration is cheap because game logic goes through a `Display` abstraction layer
 Agreed and implemented classes:
 - `GameState` — all mutable player/world state: flags, skills, counters, feats, inventory, faction standing, location/scene tracking
 - `Display` (abstract) / `TerminalDisplay` — rendering interface; `NcursesDisplay` planned for Phase B
-- `Scene` — owns a list of flag-conditional descriptions (tuple: flag, text, art_path); empty flag = default
-- `Location` — owns scenes (map) and connections (vector); no `defaultSceneId()` (Chris to implement if needed)
-- `Connection` — struct: destination + label; requires/effects fields planned
+- `Scene` — owns flag-conditional descriptions (tuple: flag, text, art_path), `Option` list, and `Connection` list
+- `Location` — owns scenes (map) and `defaultSceneId()`; no connections (moved to Scene)
+- `Connection` — struct: `destination_location`, `destination_scene`, `label`; `requires`/`effects` planned
 - `LocationManager` — owns all locations by ID
-- `Game` — orchestrator; owns `GameState`, `TerminalDisplay`, `LocationManager`
+- `Game` — orchestrator; owns `GameState`, `TerminalDisplay`, `LocationManager`; loop split into `buildOptions()`, `renderScene()`, `handleInput()`
+- `Option` — struct: `label`, `type` (Dialogue/Action/Move), `target_id`, `destination_location`, `destination_scene`, `required_flag`
 
 Planned but not yet started: `DialogueNode` / `DialogueResponse` / `Requirement`, `NcursesDisplay`.
 
