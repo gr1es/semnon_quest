@@ -3,14 +3,44 @@
 
 // initializes GameState with placeholder player data
 // TODO: remove hardcoded parameters
-Game::Game() : _gameState("Aldric", "male", "human", "ranger")
+Game::Game() : _gameState("Aldric", "male", "Human", "Ranger")
 {
 }
 
 // unlike _terminalDisplay, _locationManager holds data (TODO later!) and needs to be constructed
 static LocationManager buildLocations()
 {
+	// THE FOLLOWING IS A HARDCODED DUMMY TO GET SOME  DATA FOR run()
+	// SCENE ID
+	std::string id = "common_room";
+	// SCENE NAME
+	std::string name = "Common Room";
+	// SCENE DESCRIPTIONS
+	std::vector<std::tuple<std::string, std::string, std::string>> descriptions;
+	descriptions.push_back({ "", "A cozy fire crackles in a hearth at the far side of the room.", "./data/ascii/pint.txt" });
+	// OPTIONS
+	std::vector<Option> options = {
+		{ "Talk to the innkeeper.", OptionType::Dialogue,
+			"innkeeper",
+			"",
+			"",
+			"" },
+		{ "Start a brawl.", OptionType::Action, "", "", "", "" }
+	};
+	// CONNECTIONS
+	std::vector<Connection> connections = {
+		{ "street", "", "Leave the tavern." },
+		{ "", "", "Sneak past the innkeeper and enter the kitchen." }
+	};
+	// --> SCENE
+	Scene scene(id, name, descriptions, options, connections);
+	// --> SCENES
+	std::map<std::string, Scene> scenes = { { scene.id(), scene } };
+	// --> LOCATION
+	Location location("askas_rest", "Aska's Rest", scenes, scene.id());
+	// --> LOCATION MANAGER
 	LocationManager manager;
+	manager.addLocation(location);
 	return (manager);
 }
 
@@ -18,7 +48,7 @@ void Game::run()
 {
 	_locationManager = buildLocations();
 	// TODO: current location and scene need to be defined by data from savegame
-	_gameState.setCurrentLocation("pracing_pony");
+	_gameState.setCurrentLocation("askas_rest");
 	_gameState.setCurrentScene("common_room");
 
 	while (true)
@@ -61,19 +91,29 @@ void Game::renderScene(const Location &loc, const Scene &scene, const std::vecto
 {
 	_terminalDisplay.clearScreen();
 	_terminalDisplay.renderSceneName(scene.name());
+	std::cout << "\n";
+
 	if (!scene.getArtPath(_gameState).empty())
+	{
 		_terminalDisplay.renderArt(scene.getArtPath(_gameState));
+		std::cout << "\n";
+	}
+	else
+		std::cout << "No art_path here.\n";
 	_terminalDisplay.renderDescription(scene.getDescription(_gameState));
+	std::cout << "\n";
 
 	// get labels from local collection of available options
 	std::vector<std::string> labels;
 	for (const Option &opt : options)
 		labels.push_back(opt.label);
 	_terminalDisplay.renderOptions(labels);
+	std::cout << "\n";
 
 	// assemble player info here so it stays up-to-date
 	std::string player_info = _gameState.name() + " | " + _gameState.race() + " | Lv. " + std::to_string(_gameState.level());
 	_terminalDisplay.renderStatusBar(player_info, loc.name(), scene.name());
+	std::cout << "\n";
 }
 
 // returns false on EOF to signal the outer loop to exit
@@ -109,7 +149,7 @@ bool Game::handleInput(const std::vector<Option> &options)
 				std::cerr << "WARNING: Move option \"" << chosen.label << "\" has no destination\n";
 				break;
 			}
-			// we need to move to a new location, location and scene changes
+			// if we need to move to a new location,  location and scene change
 			if (!chosen.destination_location.empty())
 			{
 				_gameState.setCurrentLocation(chosen.destination_location);
@@ -119,7 +159,7 @@ bool Game::handleInput(const std::vector<Option> &options)
 				// ternary: if destination_scene is empty, use defaultSceneId(), otherwise use destination_scene.
 				_gameState.setCurrentScene(chosen.destination_scene.empty() ? new_loc.defaultSceneId() : chosen.destination_scene);
 			}
-			// we stay at the same location, just scene changes
+			// or else we stay at the same location, just scene changes
 			else
 				_gameState.setCurrentScene(chosen.destination_scene);
 			break;
