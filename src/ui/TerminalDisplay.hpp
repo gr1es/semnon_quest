@@ -9,7 +9,7 @@ class TerminalDisplay : public Display
 		// see Display.hpp for comments
 		void clearScreen() override;
 		void renderSceneName(const std::string &scene_name) override;
-		void renderArt(const std::string &art) override;
+		void renderArt(const std::string &art_path) override;
 		void renderDescription(const std::string &text) override;
 		void renderOptions(const std::vector<std::string> &options) override;
 		void renderStatusBar(const std::string &player_info, const std::string &location_name, const std::string &scene_name) override;

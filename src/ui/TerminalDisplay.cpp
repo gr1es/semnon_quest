@@ -1,4 +1,5 @@
 #include "TerminalDisplay.hpp"
+#include <fstream>
 #include <iostream>
 
 void TerminalDisplay::clearScreen()
@@ -11,9 +12,17 @@ void TerminalDisplay::renderSceneName(const std::string &scene_name)
 	std::cout << scene_name << "\n";
 }
 
-void TerminalDisplay::renderArt(const std::string &art)
+void TerminalDisplay::renderArt(const std::string &art_path)
 {
-	std::cout << art << "\n";
+	std::string line;
+	std::ifstream file;
+
+	file.open(art_path);
+	if (!file)
+		std::cerr << "WARNING: art path \"" << art_path << "couldn't be opened.\n";
+	while (std::getline(file, line))
+		std::cout << line << "\n";
+	file.close();
 }
 
 void TerminalDisplay::renderDescription(const std::string &text)
@@ -32,7 +41,7 @@ void TerminalDisplay::renderStatusBar(const std::string &player_info, const std:
 {
 	// TODO test whether abbreviation of CJIM elements is necessary
 	// REMINDER: this function owns the brackets! don't feed bracketed strings!
-	std::cout << "[ " << player_info << " ]\t[ " << location_name << " | " << scene_name << " ]\t[C]haracter\t[J]ournal\t[I]nventory\t[M]enu\n";
+	std::cout << "[" << player_info << "]    [" << location_name << " | " << scene_name << "]\n[C]haracter    [J]ournal    [I]nventory    [M]enu\n";
 }
 
 char TerminalDisplay::getInput()
