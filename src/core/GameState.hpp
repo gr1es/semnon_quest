@@ -1,4 +1,4 @@
-#pragma once // a shortform of the usual header guard ("#ifndef ...")
+#pragma once /// a shortform of the usual header guard ("#ifndef ...")
 
 #include <map>
 #include <set>
@@ -7,15 +7,15 @@
 class GameState
 {
 	public:
-		// constructor
+		/// constructor
 		GameState(const std::string &player_name, const std::string &player_gender,
 			const std::string &player_race, const std::string &player_background);
-		// immutable getters
+		/// immutable getters
 		const std::string &name() const;
 		const std::string &gender() const;
 		const std::string &race() const;
 		const std::string &background() const;
-		// location and scene methods
+		/// location and scene methods
 		const std::string &currentLocation() const;
 		void setCurrentLocation(const std::string &location_id);
 		const std::string &currentScene() const;
@@ -23,26 +23,26 @@ class GameState
 		bool hasDiscovered(const std::string &location_id) const;
 		void discoverLocation(const std::string &location_id);
 		const std::set<std::string> &discoveredLocations() const;
-		// progression methods
+		/// progression methods
 		int level() const;
 		int experience() const;
 		void addExperience(int amount);
-		// flag methods
+		/// flag methods
 		bool getFlag(const std::string &flag) const;
 		void setFlag(const std::string &flag, bool state);
-		// skill methods
+		/// skill methods
 		int getSkill(const std::string &skill) const;
 		void modifySkill(const std::string &skill, int delta);
-		// counter methods
+		/// counter methods
 		int getCounter(const std::string &key) const;
 		void modifyCounter(const std::string &key, int delta);
-		// feat methods
+		/// feat methods
 		bool hasFeat(const std::string &feat) const;
 		void addFeat(const std::string &feat);
-		// inventory methods
+		/// inventory methods
 		int getItem(const std::string &item_id) const;
 		void modifyInventory(const std::string &item_id, int delta);
-		// faction methods
+		/// faction methods
 		int factionStanding(const std::string &faction_id) const;
 		void modifyFactionStanding(const std::string &faction_id, int delta);
 
