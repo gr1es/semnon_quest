@@ -22,6 +22,8 @@ class Menu
 		Menu(Display &display, bool is_ingame);
 		void renderEntries() const;
 		Choice getChoice() const;
+		void showCredits() const;
+		void showSettings() const;
 
 	private:
 		Display &_display;

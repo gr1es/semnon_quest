@@ -1,6 +1,4 @@
 #include "Menu.hpp"
-#include <iostream>
-#include <limits>
 
 Menu::Menu(Display &display, bool is_ingame)
 	: _display(display), _isIngame(is_ingame)
@@ -21,6 +19,8 @@ void Menu::renderEntries() const
 
 Choice Menu::getChoice() const
 {
+	// prints newline
+	_display.renderMessage("");
 	char input = _display.getInput();
 	if (input == EOF)
 		return (Choice::Quit);
@@ -40,4 +40,30 @@ Choice Menu::getChoice() const
 			return (static_cast<Choice>(choice));
 		// TODO: all of this has to be revised when implementing savegames
 	}
+}
+
+// TODO: add actual credits
+void Menu::showCredits() const
+{
+	_display.clearScreen();
+	_display.renderMessage("CREDITS GO HERE\n");
+	_display.renderMessage("Enter 'M' to return to Menu.");
+	char input;
+	do
+	{
+		input = _display.getInput();
+	} while (input != 'M');
+}
+
+// TODO: implement actual settings
+void Menu::showSettings() const
+{
+	_display.clearScreen();
+	_display.renderMessage("SETTINGS GO HERE\n");
+	_display.renderMessage("Enter 'M' to return to Menu.");
+	char input;
+	do
+	{
+		input = _display.getInput();
+	} while (input != 'M');
 }
