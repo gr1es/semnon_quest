@@ -3,9 +3,14 @@
 #include <string>
 #include <vector>
 
-// abstract base class for definition of display interface
-// concrete implementation classes(TerminalDisplay, NcursesDisplay) handle the actual output
-// the game loop talks only to Display
+// abstract base class defining the rendering interface
+// will be compatible with Terminal AND Ncurses
+// game code depends on Display, not on any concrete class
+// --> swapping between Ncurses and terminal requires no changes to game logic
+
+// TerminalDisplay: phase A backend (std::cout), kept as debug/fallback even in phase B
+// NcursesDisplay: phase B backend — arrow keys, color, proper layout
+
 class Display
 {
 	public:
