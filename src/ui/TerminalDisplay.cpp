@@ -20,13 +20,18 @@ void TerminalDisplay::renderArt(const std::string &art_path)
 
 	file.open(art_path);
 	if (!file)
-		std::cerr << "WARNING: art path \"" << art_path << "couldn't be opened.\n";
+		std::cerr << "WARNING: art path \"" << art_path << "\"couldn't be opened.\n";
 	while (std::getline(file, line))
 		std::cout << line << "\n";
 	file.close();
 }
 
 void TerminalDisplay::renderDescription(const std::string &text)
+{
+	std::cout << text << "\n";
+}
+
+void TerminalDisplay::renderMessage(const std::string &text)
 {
 	std::cout << text << "\n";
 }

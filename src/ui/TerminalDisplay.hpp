@@ -13,5 +13,6 @@ class TerminalDisplay : public Display
 		void renderDescription(const std::string &text) override;
 		void renderOptions(const std::vector<std::string> &options) override;
 		void renderStatusBar(const std::string &player_info, const std::string &location_name, const std::string &scene_name) override;
+		void renderMessage(const std::string &text) override;
 		char getInput() override;
 };

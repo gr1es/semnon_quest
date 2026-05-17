@@ -34,6 +34,9 @@ class Display
 		/// implementation formats them as "Tavern – Common Room"
 		/// shortcuts (C/J/I/M for Character/Journal/Inventory/Menu) are always highlighted
 		virtual void renderStatusBar(const std::string &player_info, const std::string &location_name, const std::string &scene_name) = 0;
+		/// renders a short prompt or system message (e.g. "Are you sure? [y/n]")
+		/// use instead of std::cout for phase B compatibility
+		virtual void renderMessage(const std::string &text) = 0;
 		/// reads a single keypress from the player and returns it as a char
 		/// valid inputs: '1' to'0' for options, C/J/I/M for menus
 		virtual char getInput() = 0;
