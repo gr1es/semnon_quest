@@ -17,6 +17,7 @@ class Game
 		TerminalDisplay _terminalDisplay;
 		LocationManager _locationManager;
 
+		/// helper functions for run()
 		std::vector<Option> buildOptions(const Scene &scene) const;
 		void renderScene(const Location &loc, const Scene &scene, const std::vector<Option> &options);
 		bool handleInput(const std::vector<Option> &options);
