@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include "Menu.hpp"
 #include <iostream>
 
 // initializes GameState with placeholder player data
@@ -67,11 +68,18 @@ static LocationManager buildLocations()
 
 void Game::run()
 {
-	_locationManager = buildLocations();
-	// TODO: current location and scene need to be defined by data from savegame
-	_gameState.setCurrentLocation("askas_rest");
-	_gameState.setCurrentScene("common_room");
+	// loop for the main menu at the start
+	/// all but NEW GAME and EXIT are stubs
+	Choice choice;
 
+	choice = showMenu(_terminalDisplay, false);
+	if (choice == Choice::Exit || choice == Choice::Quit)
+	{
+		_terminalDisplay.renderMessage("\nFarewell, adventurer!\n");
+		return;
+	}
+
+	// actual proper game loop
 	while (true)
 	{
 		const Location &loc = _locationManager.getLocation(_gameState.currentLocation());
@@ -82,6 +90,54 @@ void Game::run()
 		if (!handleInput(options))
 			break;
 	}
+}
+
+// populates/sets values to ones for game start
+void Game::startNewGame()
+{
+	// TODO: implement character creation
+	// TODO: implement intro sequence
+	_locationManager = buildLocations();
+	// TODO: current location and scene need to be defined by data from savegame
+	_gameState.setCurrentLocation("askas_rest");
+	_gameState.setCurrentScene("common_room");
+}
+
+Choice Game::showMenu(Display &display, bool is_ingame)
+{
+	Menu menu(display, is_ingame);
+	// pre-initialized to appease static analyzer
+	Choice choice = Choice::Quit;
+	bool done = false;
+	// do while loop = like while, but the condition is checked after the first loop
+	// --> allows choice to be initialized during first loop --> no garbage value problem
+	do
+	{
+		display.clearScreen();
+		menu.renderEntries();
+		choice = menu.getChoice();
+		if (choice == Choice::Credits)
+			menu.showCredits();
+		else if (choice == Choice::Settings)
+			menu.showSettings();
+		else if (choice == Choice::NewGame)
+		{
+			char input;
+			do
+			{
+				display.renderMessage("Are you sure? [y/n]\n");
+				input = display.getInput();
+			} while (input != 'y' && input != 'n');
+			if (input == 'y')
+			{
+				startNewGame();
+				done = true;
+			}
+		}
+		else
+			done = true;
+	} while (!done);
+	return (choice);
 }
 
 std::vector<Option> Game::buildOptions(const Scene &scene) const
@@ -148,6 +204,15 @@ bool Game::handleInput(const std::vector<Option> &options)
 		if (!isdigit(input) && input != 'C' && input != 'J' && input != 'I' && input != 'M')
 			continue;
 		// TODO: logic for CJIM input
+		if (input == 'M')
+		{
+			Choice choice;
+			choice = showMenu(_terminalDisplay, true);
+			if (choice == Choice::Exit || choice == Choice::Quit)
+				return (false);
+			else
+				return (true);
+		}
 
 		size_t choice = input - '1'; // the same as: (input - '0') - 1; stoi and substraction
 		// reprompt if choice is outside options range
