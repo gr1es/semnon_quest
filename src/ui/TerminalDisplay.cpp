@@ -50,6 +50,7 @@ char TerminalDisplay::getInput()
 	char input;
 	std::cin >> input;
 	// .peek() returns the next character in the input sequence, without extracting it
+	// this guards against input of >1 characters
 	if (std::cin.peek() != '\n' && std::cin.peek() != EOF)
 	{
 		// this discards everything up to and including the newline
