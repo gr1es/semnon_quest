@@ -14,7 +14,7 @@ Build system: root `Makefile` delegates to CMake. Executable lands at project ro
 - `make run` — build and launch
 - `make re` — full rebuild
 
-**Current:** vertical slice is complete and playable — 3 locations (tavern → street → church → back), ASCII art loading from file, full game loop working (render → input → move). `getInput()` reprompts on multi-character input via `peek()`.
+**Current:** main menu implemented and wired into `Game::run()` — New Game confirmation, Credits/Settings stubs, in-game Menu shortcut via 'M', `renderMessage()` abstraction added to Display. Full game loop playable end-to-end.
 
 **Next step:** JSON loading system to replace hardcoded `buildLocations()`.
 
@@ -30,13 +30,15 @@ Migration is cheap because game logic goes through a `Display` abstraction layer
 
 Agreed and implemented classes:
 - `GameState` — all mutable player/world state: flags, skills, counters, feats, inventory, faction standing, location/scene tracking
-- `Display` (abstract) / `TerminalDisplay` — rendering interface; `NcursesDisplay` planned for Phase B
+- `Display` (abstract) / `TerminalDisplay` — rendering interface; `NcursesDisplay` planned for Phase B; includes `renderMessage()` for prompt/system text
 - `Scene` — owns flag-conditional descriptions (tuple: flag, text, art_path), `Option` list, and `Connection` list
 - `Location` — owns scenes (map) and `defaultSceneId()`; no connections (moved to Scene)
 - `Connection` — struct: `destination_location`, `destination_scene`, `label`; `requires`/`effects` planned
 - `LocationManager` — owns all locations by ID
-- `Game` — orchestrator; owns `GameState`, `TerminalDisplay`, `LocationManager`; loop split into `buildOptions()`, `renderScene()`, `handleInput()`
+- `Game` — orchestrator; owns `GameState`, `TerminalDisplay`, `LocationManager`; loop split into `buildOptions()`, `renderScene()`, `handleInput()`, `showMenu()`, `startNewGame()`
+- `Menu` — owns entry list and input loop; `showMenu()` in Game constructs it and handles NewGame confirmation and Credits/Settings stubs
 - `Option` — struct: `label`, `type` (Dialogue/Action/Move), `target_id`, `destination_location`, `destination_scene`, `required_flag`
+- `Choice` — plain `enum class` in `Menu.hpp`: `Continue`, `NewGame`, `Settings`, `Credits`, `Exit`, `Quit`
 
 Planned but not yet started: `DialogueNode` / `DialogueResponse` / `Requirement`, `NcursesDisplay`.
 
