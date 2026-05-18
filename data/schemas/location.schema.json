@@ -1,0 +1,58 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": ["id", "name", "default_scene", "scenes"],
+    "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "default_scene": { "type": "string" },
+        "scenes": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["id", "name", "descriptions", "options", "connections"],
+                "properties": {
+                    "id": { "type": "string" },
+                    "name": { "type": "string" },
+                    "descriptions": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": ["required_flag", "text", "art"],
+                            "properties": {
+                                "required_flag": { "type": "string" },
+                                "text": { "type": "string" },
+                                "art": { "type": "string" }
+                            }
+                        }
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": ["label", "type", "target_id", "required_flag"],
+                            "properties": {
+                                "label": { "type": "string" },
+                                "type": { "enum": ["Dialogue", "Action", "Move"] },
+                                "target_id": { "type": "string" },
+                                "required_flag": { "type": "string" }
+                            }
+                        }
+                    },
+                    "connections": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": ["label", "destination_location", "destination_scene"],
+                            "properties": {
+                                "label": { "type": "string" },
+                                "destination_location": { "type": "string" },
+                                "destination_scene": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
