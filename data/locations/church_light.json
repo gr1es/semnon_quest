@@ -1,0 +1,27 @@
+{
+	"$schema": "../schemas/location.schema.json",
+	"id": "church_light",
+	"name": "The Church of Light",
+	"default_scene": "nave",
+	"scenes": [
+		{
+			"id": "nave",
+			"name": "The Nave",
+			"descriptions": [
+				{
+					"required_flag": "",
+					"text": "Echoes of old chants and heroic memories resonate through the opulent halls.",
+					"art": ""
+				}
+			],
+			"options": [],
+			"connections": [
+				{
+					"label": "Return to the street.",
+					"destination_location": "street",
+					"destination_scene": ""
+				}
+			]
+		}
+	]
+}

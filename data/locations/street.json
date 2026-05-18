@@ -1,0 +1,32 @@
+{
+	"$schema": "../schemas/location.schema.json",
+	"id": "street",
+	"name": "Streets of Brigach",
+	"default_scene": "paupers_district",
+	"scenes": [
+		{
+			"id": "paupers_district",
+			"name": "Pauper's District",
+			"descriptions": [
+				{
+					"required_flag": "",
+					"text": "Some drunkards linger in the shadows of nearby alleys.",
+					"art": "./data/ascii/houses.txt"
+				}
+			],
+			"options": [],
+			"connections": [
+				{
+					"label": "Walk over to the church.",
+					"destination_location": "church_light",
+					"destination_scene": ""
+				},
+				{
+					"label": "Enter Aska's Rest tavern.",
+					"destination_location": "askas_rest",
+					"destination_scene": ""
+				}
+			]
+		}
+	]
+}

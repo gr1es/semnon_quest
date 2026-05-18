@@ -1,0 +1,27 @@
+{
+	"$schema": "../schemas/location.schema.json",
+	"id": "askas_rest",
+	"name": "Aska's Rest",
+	"default_scene": "common_room",
+	"scenes": [
+		{
+			"id": "common_room",
+			"name": "Common Room",
+			"descriptions": [
+				{
+					"required_flag": "",
+					"text": "A cozy fire crackles in a hearth at the far side of the room.",
+					"art": "./data/ascii/pint.txt"
+				}
+			],
+			"options": [],
+			"connections": [
+				{
+					"label": "Leave the tavern.",
+					"destination_location": "street",
+					"destination_scene": ""
+				}
+			]
+		}
+	]
+}
