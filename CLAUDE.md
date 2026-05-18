@@ -14,9 +14,9 @@ Build system: root `Makefile` delegates to CMake. Executable lands at project ro
 - `make run` — build and launch
 - `make re` — full rebuild
 
-**Current:** main menu implemented and wired into `Game::run()` — New Game confirmation, Credits/Settings stubs, in-game Menu shortcut via 'M', `renderMessage()` abstraction added to Display. Full game loop playable end-to-end.
+**Current:** JSON loading system implemented — `LocationLoader` reads `data/locations/*.json` via `std::filesystem` and nlohmann/json (fetched via CMake FetchContent). `buildLocations()` removed from Game.cpp. JSON Schema + VSCode snippets set up for location authoring. `compile_commands.json` generated for clangd IntelliSense.
 
-**Next step:** JSON loading system to replace hardcoded `buildLocations()`.
+**Next step:** dialogue system — `DialogueNode`, `DialogueManager`, wiring into `handleInput()`.
 
 ## Development plan
 
@@ -40,7 +40,7 @@ Agreed and implemented classes:
 - `Option` — struct: `label`, `type` (Dialogue/Action/Move), `target_id`, `destination_location`, `destination_scene`, `required_flag`
 - `Choice` — plain `enum class` in `Menu.hpp`: `Continue`, `NewGame`, `Settings`, `Credits`, `Exit`, `Quit`
 
-Planned but not yet started: `DialogueNode` / `DialogueResponse` / `Requirement`, `NcursesDisplay`.
+Planned but not yet started: `DialogueNode` / `DialogueResponse` / `Requirement`, `SfmlDisplay` (phase B, replaces planned NcursesDisplay — cross-platform, supports real images).
 
 ## Naming conventions
 
