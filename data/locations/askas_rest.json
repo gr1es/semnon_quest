@@ -11,7 +11,7 @@
 				{
 					"required_flag": "",
 					"text": "A cozy fire crackles in a hearth at the far side of the room.",
-					"art": "./data/ascii/pint.txt"
+					"art": "pint.txt"
 				}
 			],
 			"options": [],
