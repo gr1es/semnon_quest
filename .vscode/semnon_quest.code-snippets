@@ -1,0 +1,75 @@
+{
+	"New Location": {
+		"scope": "json",
+		"prefix": "location",
+		"description": "Skeleton for a semnon_quest location file",
+		"body": [
+			"{",
+			"    \"\\$schema\": \"../schemas/location.schema.json\",",
+			"    \"id\": \"$1\",",
+			"    \"name\": \"$2\",",
+			"    \"default_scene\": \"$3\",",
+			"    \"scenes\": [",
+			"        {",
+			"            \"id\": \"$3\",",
+			"            \"name\": \"$4\",",
+			"            \"descriptions\": [",
+			"                {",
+			"                    \"required_flag\": \"\",",
+			"                    \"text\": \"$5\",",
+			"                    \"art\": \"$6\"",
+			"                }",
+			"            ],",
+			"            \"options\": [],",
+			"            \"connections\": []",
+			"        }",
+			"    ]",
+			"}"
+		]
+	},
+	"New Scene": {
+		"scope": "json",
+		"prefix": "scene",
+		"description": "Skeleton for an additional scene within a location",
+		"body": [
+			"{",
+			"    \"id\": \"$1\",",
+			"    \"name\": \"$2\",",
+			"    \"descriptions\": [",
+			"        {",
+			"            \"required_flag\": \"\",",
+			"            \"text\": \"$3\",",
+			"            \"art\": \"$4\"",
+			"        }",
+			"    ],",
+			"    \"options\": [],",
+			"    \"connections\": []",
+			"}"
+		]
+	},
+	"New Option": {
+		"scope": "json",
+		"prefix": "option",
+		"description": "Skeleton for an option entry",
+		"body": [
+			"{",
+			"    \"label\": \"$1\",",
+			"    \"type\": \"${2|Dialogue,Action,Move|}\",",
+			"    \"target_id\": \"$3\",",
+			"    \"required_flag\": \"$4\"",
+			"}"
+		]
+	},
+	"New Connection": {
+		"scope": "json",
+		"prefix": "connection",
+		"description": "Skeleton for a connection entry",
+		"body": [
+			"{",
+			"    \"label\": \"$1\",",
+			"    \"destination_location\": \"$2\",",
+			"    \"destination_scene\": \"$3\"",
+			"}"
+		]
+	}
+}
