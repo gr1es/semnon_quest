@@ -1,69 +1,12 @@
 #include "Game.hpp"
 #include "Menu.hpp"
+#include "LocationLoader.hpp"
 #include <iostream>
 
 // initializes GameState with placeholder player data
 // TODO: remove hardcoded parameters
 Game::Game() : _gameState("Aldric", "male", "Human", "Ranger")
 {
-}
-
-// unlike _terminalDisplay, _locationManager holds data (TODO later!) and needs to be constructed
-static LocationManager buildLocations()
-{
-	// THE FOLLOWING IS A HARDCODED DUMMY TO GET SOME DATA FOR run()
-	LocationManager manager;
-
-	// --- ASKA'S REST ---
-	// SCENE DESCRIPTIONS
-	std::vector<std::tuple<std::string, std::string, std::string>> tavern_descs;
-	tavern_descs.push_back({ "", "A cozy fire crackles in a hearth at the far side of the room.", "./data/ascii/pint.txt" });
-	// OPTIONS
-	std::vector<Option> tavern_options = {
-		{ "Talk to the innkeeper.", OptionType::Dialogue, "innkeeper", "", "", "" },
-		{ "Start a brawl.", OptionType::Action, "", "", "", "" }
-	};
-	// CONNECTIONS
-	std::vector<Connection> tavern_connections = {
-		{ "street", "", "Leave the tavern." },
-		{ "", "", "Sneak past the innkeeper and enter the kitchen." }
-	};
-	// --> SCENE
-	Scene tavern_scene("common_room", "Common Room", tavern_descs, tavern_options, tavern_connections);
-	// --> LOCATION
-	std::map<std::string, Scene> tavern_scenes = { { tavern_scene.id(), tavern_scene } };
-	manager.addLocation(Location("askas_rest", "Aska's Rest", tavern_scenes, tavern_scene.id()));
-
-	// --- THE STREETS ---
-	// SCENE DESCRIPTIONS
-	std::vector<std::tuple<std::string, std::string, std::string>> street_descs;
-	street_descs.push_back({ "", "Some drunkards linger in the shadows of nearby alleys.", "./data/ascii/houses.txt" });
-	// CONNECTIONS
-	std::vector<Connection> street_connections = {
-		{ "askas_rest", "", "Enter Aska's Rest." },
-		{ "church_light", "", "Walk over to the church." }
-	};
-	// --> SCENE
-	Scene street_scene("paupers_district", "Pauper's District", street_descs, { }, street_connections);
-	// --> LOCATION
-	std::map<std::string, Scene> street_scenes = { { street_scene.id(), street_scene } };
-	manager.addLocation(Location("street", "The Streets", street_scenes, street_scene.id()));
-
-	// --- THE CHURCH OF LIGHT ---
-	// SCENE DESCRIPTIONS
-	std::vector<std::tuple<std::string, std::string, std::string>> church_descs;
-	church_descs.push_back({ "", "Echoes of old chants and heroic memories resonate through the opulent halls.", "./data/ascii/church.txt" });
-	// CONNECTIONS
-	std::vector<Connection> church_connections = {
-		{ "street", "", "Return to the street." }
-	};
-	// --> SCENE
-	Scene church_scene("nave", "Nave", church_descs, { }, church_connections);
-	// --> LOCATION
-	std::map<std::string, Scene> church_scenes = { { church_scene.id(), church_scene } };
-	manager.addLocation(Location("church_light", "The Church of Light", church_scenes, church_scene.id()));
-
-	return (manager);
 }
 
 void Game::run()
@@ -97,7 +40,7 @@ void Game::startNewGame()
 {
 	// TODO: implement character creation
 	// TODO: implement intro sequence
-	_locationManager = buildLocations();
+	_locationManager = LocationLoader::load("./data/locations");
 	// TODO: current location and scene need to be defined by data from savegame
 	_gameState.setCurrentLocation("askas_rest");
 	_gameState.setCurrentScene("common_room");
