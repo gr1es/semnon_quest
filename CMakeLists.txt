@@ -21,6 +21,7 @@ set(SOURCES
 	src/world/Location.cpp
 	src/world/LocationManager.cpp
 	src/world/Scene.cpp
+	src/utils/LocationLoader.cpp
 )
 
 # fetch nlohmann/json at configure time — no manual install required
