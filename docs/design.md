@@ -8,7 +8,7 @@ Living document. Updated as decisions are made or revised. Includes both settled
 
 ## Concept
 
-Location-based narrative RPG set in Chris's original PnP campaign world. Heavy text focus, ASCII art, strong reactivity to player choices. Closer to a visual novel / text adventure than a tile-based game. The core promise: early obscure choices seed consequences that pay off chapters later.
+Location-based narrative RPG set in Chris's original PnP campaign world. Heavy text focus, ASCII art, strong reactivity to player choices. **Hybrid form:** primarily a text-adventure / visual-novel-style *narration mode*, punctuated by short turn-based grid-roguelike *combat sequences* — both rendered in one window (see _Display / Rendering_ and _Combat Mode_). The core promise: early obscure choices seed consequences that pay off chapters later.
 
 ---
 
@@ -26,14 +26,16 @@ Location-based narrative RPG set in Chris's original PnP campaign world. Heavy t
 
 ## Display / Rendering
 
-Two-phase approach:
+**Backend: libtcod** (The Doryen Library, SDL-based) — hosts BOTH narration and combat in a single window. Supersedes the earlier ncurses/SFML Phase B plan.
 
-- **Phase A:** Pure terminal — `std::cout` + numbered menus. Build and stress-test all core systems here. Do not migrate until the feature set is satisfying.
-- **Phase B:** ncurses — arrow key navigation, color, rendered node map. Migration is cheap because all rendering goes through a `Display` abstraction layer (one-line swap in `main()`).
+- **Phase A (largely done):** Pure terminal — `std::cout` + numbered menus. Used to build and stress-test core narration systems.
+- **Phase B (current target):** Migrate the `Display` backend to libtcod. Narration text and the combat grid render through the same libtcod console — avoiding a raw-terminal-narration + separate-combat-window split. Migration stays cheap because rendering goes through the `Display` abstraction (swap the concrete backend; game logic unchanged).
+- **ASCII / tile toggle:** libtcod treats ASCII glyphs and graphical tiles as the same char-code→tilesheet mapping — ship ASCII-only first (zero art), add optional CC0 tiles later with no rearchitecting.
+- **Build note:** libtcod is a compiled lib with an SDL dependency (install via vcpkg), unlike header-only nlohmann/json.
 
-Note: ncurses changes input handling (character-by-character vs. line-buffered). Numbered menus migrate cleanly; typed commands would need more care.
+Note: the single-keypress input model (character-by-character, not line-buffered) suits libtcod's event input. Numbered menus migrate cleanly; typed commands would need more care.
 
-### UI Layout (per scene)
+### UI Layout (narration mode, per scene)
 
 ```
 [optional ASCII art]
@@ -53,6 +55,21 @@ Note: ncurses changes input handling (character-by-character vs. line-buffered).
 - Status bar is always at the bottom; populated by the game loop from `GameState`, not by `Display` itself (keeps layers decoupled)
 - ASCII art is optional — not every scene requires it
 - Quest log: yes, include one — a reactive game needs it so players can track open threads
+- This layout is narration-mode only; combat mode uses its own grid layout (status/log around a libtcod grid) — TBD
+
+---
+
+## Combat Mode
+
+Short turn-based grid roguelike sequences (SPD / Stoneshard-inspired: player and world act alternately), triggered from narration and resolved back into it. Combat is the minority of playtime; narration is the majority. Inspiration reference: Temple of Torment.
+
+- **Trigger:** a narration event drops into combat (e.g. provoking the tavern drunkard). On resolution, control returns to narration.
+- **Backend:** libtcod grid (FOV, pathfinding, colored grid), same window as narration — see _Display / Rendering_.
+- **Bridge to narration = the reactivity system.** A combat outcome writes `GameState` flags (`"killed_drunkard_at_tavern"`, `"spared_drunkard"`) that later narration reads via `requires`/`effects`. Combat is just another producer of flags — no special plumbing.
+- **Brutal vs pacifist axis (long-term goal):** lethal vs non-lethal resolutions set different flags, consumed by later content. A pacifist route is a first-class outcome, not a fail state.
+- **Far-future (parked — do NOT build yet):** dungeons as longer multi-room combat sequences with narration sprinkled in (merchant / story-NPC rooms). A content-scale expansion of combat mode, not an architecture change; possibly a later/"sequel" expansion. Build a single small encounter first.
+
+Development order: get libtcod building (vcpkg) and a `TcodDisplay` hosting narration, then one small single-room encounter to exercise the combat loop.
 
 ---
 
@@ -154,3 +171,7 @@ All feats are stored as named booleans in `GameState` (`feats` map). Category is
 - Faction standing: how central is it to the narrative? Full system or light touch?
 - Node map: are adjacent-but-unvisited nodes visible (grayed out) or fully hidden?
 - Races: full list not yet decided beyond humans, wood elves, orcs.
+- **Combat resolution vs flat-check philosophy:** does combat mode stay deterministic (no RNG, matching the Skill / Check System rationale), or does grid combat introduce RNG (hit/damage rolls) per roguelike convention? Unresolved — these two instincts pull opposite directions.
+- **Combat encounter authoring:** how are encounters defined and triggered from narration data (JSON schema for grid layout, enemy placement, entry/exit)? TBD.
+- **Skills/feats/level in combat:** how do narrative skills and feats carry into combat stats? Relationship TBD.
+- **ASCII/tile default:** ship ASCII-only first; if a tile toggle is added later, which is the default, and is it a settings option or player-facing hotkey (Cogmind-style)?
