@@ -2,4 +2,4 @@
 
 **Under development**
 
-Text-based RPG with heavy focus on narration and world reactivity. 
+Text-based RPG with heavy focus on narration and world reactivity with roguelike combat sequences.
