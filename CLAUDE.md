@@ -2,7 +2,7 @@
 
 # semnon_quest
 
-Location-based narrative RPG in C++17. Heavy text focus, ASCII art, strong reactivity to player choices. NOT a tile-based game — scene-to-scene navigation, closer to a visual novel / text adventure.
+Location-based narrative RPG in C++17. Heavy text focus, ASCII art, strong reactivity to player choices. **Hybrid design:** a text-adventure narration mode (scene-to-scene navigation, visual-novel-like) plus short turn-based grid combat sequences, both rendered in a single window via libtcod. See _Design direction_ below.
 
 ## Current state
 
@@ -16,15 +16,40 @@ Build system: root `Makefile` delegates to CMake. Executable lands at project ro
 
 **Current:** JSON loading system implemented — `LocationLoader` reads `data/locations/*.json` via `std::filesystem` and nlohmann/json (fetched via CMake FetchContent). `buildLocations()` removed from Game.cpp. JSON Schema + VSCode snippets set up for location authoring. `compile_commands.json` generated for clangd IntelliSense.
 
-**Next step:** dialogue system — `DialogueNode`, `DialogueManager`, wiring into `handleInput()`.
+**Next step:** two parallel tracks — (1) *narration:* dialogue system (`DialogueNode`, `DialogueManager`, wiring into `handleInput()`); (2) *combat:* integrate libtcod (via vcpkg), migrate narration rendering into a `TcodDisplay` so both modes share one window, then build one small combat encounter to exercise libtcod.
+
+## Design direction (hybrid: narration + combat)
+
+Major pivot from "pure text adventure." The game is now a **hybrid of two modes sharing one window**:
+
+- **Narration mode** — the existing text-adventure core: scene-to-scene navigation, dialogue, numbered menus. The majority of playtime.
+- **Combat mode** — short turn-based grid roguelike sequences (SPD/Stoneshard-inspired: player and world act alternately). Triggered from narration (e.g. provoking a drunkard in the tavern), resolved, then control returns to narration.
+
+**Controls (game design):** the game itself is designed keyboard-focused — keyboard-only where feasible. This is a deliberate UX choice for the *game*, independent of the tooling/workflow reasons below. Do NOT conflate it with Chris's dislike of Godot's mouse-driven editor — that was purely about the game-*creation* process, not game design.
+
+**Rendering + combat backend: libtcod** (The Doryen Library; SDL-based). Chosen over the earlier ncurses/SFML Phase B plan and over a Godot detour (see below). Rationale:
+- Native grid-roguelike toolkit: FOV, A*/Dijkstra pathfinding, colored character grid, custom fonts/tilesets, input.
+- Hosts BOTH modes in a single window — narration text and combat grid render through the same libtcod console. Avoids the raw-terminal-narration + separate-combat-window trap.
+- Keyboard-driven, C++, no GUI editor — matches Chris's VS Code / keyboard *development* workflow. (This concerns the *authoring* experience; Godot's mouse-heavy editor was what ruled it out — see Godot note below.)
+
+**Consequence — the `Display` abstraction is the migration seam.** std::cout narration must move into a `TcodDisplay`: std::cout, ncurses, and libtcod cannot be mixed, so both modes go through one backend. Contained swap, not a rewrite.
+
+**Mode ↔ mode bridge = the reactivity system.** Combat is just another producer of `GameState` flags/effects. A combat outcome writes flags (`"killed_drunkard_at_tavern"`, `"spared_drunkard"`) that narration reads. The planned brutal-vs-pacifist axis falls out of this: lethal vs non-lethal resolutions set different flags, consumed by later `requires`/`effects`.
+
+**ASCII ↔ tile graphics.** In libtcod both are the same mechanism (a character-code → tilesheet-image mapping), so a Cogmind-style toggle is idiomatic. Plan: ship ASCII-only first (zero art), add an optional tile mode later using CC0 tiles (Kenney/itch.io) — same grid, swapped tilesheet, no rearchitecting. Boundary: everything is grid-locked (equal cells, one tile per cell); free-form/large/animated sprites are out of scope for libtcod.
+
+**Far-future (parked — do NOT build yet):** dungeons as longer combat-mode sequences (multi-room maps) with narration sprinkled in (merchant / story-NPC rooms). A dungeon is a content-scale expansion of combat mode, not an architecture change. Possibly a later/"sequel" expansion. Do not build dungeon systems before a single small encounter ships.
+
+**Build note:** libtcod is a compiled lib with an SDL dependency — unlike header-only nlohmann/json. Smoothest install is vcpkg (`vcpkg install libtcod`, pulls SDL); FetchContent is possible but means managing SDL yourself.
+
+**Godot detour (evaluated, parked):** Godot 4.7 was seriously evaluated — a POC lives at `~/projects/semnon_godot`. Set aside because Godot's GUI-heavy, mouse-driven *editor* workflow clashed with Chris's keyboard/VS Code development habits. Scoping note: this objection was strictly about *building the game in Godot* (the creation process) — it is NOT a game-design stance. The keyboard-focused game design stands on its own regardless of engine. The C++ project is the active direction; the Godot POC is kept as a fallback.
 
 ## Development plan
 
-**Vertical slice first:** 3 hardcoded locations, pure terminal (std::cout + numbered menus), no JSON yet. Get the loop working, then layer on systems.
+**Vertical slice first:** 3 hardcoded locations, pure terminal (std::cout + numbered menus), no JSON yet. Get the loop working, then layer on systems. (Narration prototyping — largely done.)
 
-**Phase A:** Pure terminal display
-**Phase B:** Migrate to ncurses (arrow key navigation, color)
-Migration is cheap because game logic goes through a `Display` abstraction layer — swapping implementations is a one-line change in main().
+**Phase A:** Pure terminal display (narration prototyping).
+**Phase B (revised):** Migrate the `Display` backend to **libtcod** — supersedes the old ncurses/SFML plan. libtcod hosts both narration and combat in one window (see _Design direction_). Migration stays cheap because game logic goes through the `Display` abstraction — swapping the concrete backend is contained.
 
 ## Architecture
 
@@ -40,7 +65,7 @@ Agreed and implemented classes:
 - `Option` — struct: `label`, `type` (Dialogue/Action/Move), `target_id`, `destination_location`, `destination_scene`, `required_flag`
 - `Choice` — plain `enum class` in `Menu.hpp`: `Continue`, `NewGame`, `Settings`, `Credits`, `Exit`, `Quit`
 
-Planned but not yet started: `DialogueNode` / `DialogueResponse` / `Requirement`, `SfmlDisplay` (phase B, replaces planned NcursesDisplay — cross-platform, supports real images).
+Planned but not yet started: `DialogueNode` / `DialogueResponse` / `Requirement`; `TcodDisplay` (libtcod backend for both modes — supersedes the old `NcursesDisplay`/`SfmlDisplay` plan); combat-mode classes — a mode state machine (`NarrationMode` / `CombatMode`) and `CombatEncounter` (grid, actors, turn loop) returning an outcome that writes `GameState` flags. `SfmlDisplay` demoted to a possible far-future polish path (real fonts/images) behind the same `Display` seam.
 
 ## Naming conventions
 
