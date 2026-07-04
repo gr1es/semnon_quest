@@ -41,7 +41,7 @@ void Game::startNewGame()
 	// TODO: implement character creation
 	// TODO: implement intro sequence
 	_locationManager = LocationLoader::load("./data/locations");
-	// TODO: current location and scene need to be defined by data from savegame
+	// TODO: current (= starting) location and scene are defined by choices during character creation 
 	_gameState.setCurrentLocation("askas_rest");
 	_gameState.setCurrentScene("common_room");
 }
@@ -101,8 +101,8 @@ std::vector<Option> Game::buildOptions(const Scene &scene) const
 	// TODO: add filtering for invisible options as soon as requires + effects are added to Connections
 
 	// check if more than 10 options -> options 11+ are un-selectable by player
-	if (options.size() > 9)
-		std::cerr << "WARNING: scene \"" << scene.id() << "\" has more than 9 options -- excess options unreachable\n";
+	if (options.size() > 10)
+		std::cerr << "WARNING: scene \"" << scene.id() << "\" has more than 10 options -- excess options unreachable\n";
 
 	return (options);
 }
@@ -111,29 +111,29 @@ void Game::renderScene(const Location &loc, const Scene &scene, const std::vecto
 {
 	_terminalDisplay.clearScreen();
 	_terminalDisplay.renderSceneName(scene.name());
-	std::cout << "\n";
+	_terminalDisplay.renderMessage("\n");
 
 	if (!scene.getArtPath(_gameState).empty())
 	{
 		_terminalDisplay.renderArt(scene.getArtPath(_gameState));
-		std::cout << "\n";
+		_terminalDisplay.renderMessage("\n");
 	}
 	else
-		std::cout << "No art_path here.\n";
+		std::cerr << ("No art_path here.\n");
 	_terminalDisplay.renderDescription(scene.getDescription(_gameState));
-	std::cout << "\n";
+	_terminalDisplay.renderMessage("\n");
 
 	// get labels from local collection of available options
 	std::vector<std::string> labels;
 	for (const Option &opt : options)
 		labels.push_back(opt.label);
 	_terminalDisplay.renderOptions(labels);
-	std::cout << "\n";
+	_terminalDisplay.renderMessage("\n");
 
 	// assemble player info here so it stays up-to-date
 	std::string player_info = _gameState.name() + " | " + _gameState.race() + " | Lv. " + std::to_string(_gameState.level());
 	_terminalDisplay.renderStatusBar(player_info, loc.name(), scene.name());
-	std::cout << "\n";
+	_terminalDisplay.renderMessage("\n");
 }
 
 // returns false on EOF to signal the outer loop to exit
@@ -157,7 +157,11 @@ bool Game::handleInput(const std::vector<Option> &options)
 				return (true);
 		}
 
-		size_t choice = input - '1'; // the same as: (input - '0') - 1; stoi and substraction
+		size_t choice;
+		if (input == '0')
+			choice = 9;
+		else
+			choice = input - '1'; // the same as: (input - '0') - 1; stoi and substraction
 		// reprompt if choice is outside options range
 		if (choice >= options.size())
 			continue;
@@ -178,7 +182,7 @@ bool Game::handleInput(const std::vector<Option> &options)
 				std::cerr << "WARNING: Move option \"" << chosen.label << "\" has no destination\n";
 				break;
 			}
-			// if we need to move to a new location,  location and scene change
+			// if we need to move to a new location: location and scene change
 			if (!chosen.destination_location.empty())
 			{
 				_gameState.setCurrentLocation(chosen.destination_location);
