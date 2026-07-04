@@ -46,7 +46,7 @@ Choice Menu::getChoice() const
 void Menu::showCredits() const
 {
 	_display.clearScreen();
-	_display.renderMessage("CREDITS GO HERE\n");
+	_display.renderMessage("Wrangled from the grasp of procrastination by:\n\tgries\n\nSpecial thanks to:\n\tAska Hest\n\t& Die Verunglimpften\nfor bringing this world to life.\n");
 	_display.renderMessage("Enter 'M' to return to Menu.");
 	char input;
 	do
