@@ -4,12 +4,12 @@
 #include <vector>
 
 // abstract base class defining the rendering interface
-// will be compatible with Terminal AND Ncurses
+// will be compatible with Terminal AND libtcod
 // game code depends on Display, not on any concrete class
-// --> swapping between Ncurses and terminal requires no changes to game logic
+// --> swapping between libtcod and terminal requires no changes to game logic
 
 // TerminalDisplay: phase A backend (std::cout), kept as debug/fallback even in phase B
-// NcursesDisplay: phase B backend — arrow keys, color, proper layout
+// libtcodDisplay: phase B backend — arrow keys, color, proper layout
 
 class Display
 {
