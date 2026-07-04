@@ -107,7 +107,7 @@ int GameState::getSkill(const std::string &skill) const
 	auto it = _skills.find(skill);
 	if (it != _skills.end())
 		return (it->second);
-	std::cout << "\n!!!\nDEBUG: skill " << skill << " requested but not found.\n!!!\n" << std::endl;
+	std::cerr << "\n!!!\nDEBUG: skill " << skill << " requested but not found.\n!!!\n" << std::endl;
 	return (-1);
 }
 
@@ -122,7 +122,7 @@ void GameState::modifySkill(const std::string &skill, int delta)
 			it->second = 0;
 	}
 	else
-		std::cout << "\n!!!\nDEBUG: skill " << skill << " requested but not found.\n!!!\n" << std::endl;
+		std::cerr << "\n!!!\nDEBUG: skill " << skill << " requested but not found.\n!!!\n" << std::endl;
 }
 
 // counter methods
