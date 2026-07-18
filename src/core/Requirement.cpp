@@ -7,11 +7,11 @@ bool requirementMet(const Requirement &req, const GameState &gs)
 	switch (req.type)
 	{
 		// FLAG
-		case (RequirementType::Flag):
+		case (StateType::Flag):
 			return (gs.getFlag(req.key) == req.expected);
 
 		// SKILL
-		case (RequirementType::Skill):
+		case (StateType::Skill):
 		{
 			// guard is strictly speaking not necessary here
 			// since < comparison with empty optional<int> defaults to false
@@ -26,7 +26,7 @@ bool requirementMet(const Requirement &req, const GameState &gs)
 		}
 
 		// COUNTER
-		case (RequirementType::Counter):
+		case (StateType::Counter):
 		{
 			if (req.min.has_value() && gs.getCounter(req.key) < req.min)
 				return (false);
@@ -36,11 +36,11 @@ bool requirementMet(const Requirement &req, const GameState &gs)
 		}
 
 		// FEAT
-		case (RequirementType::Feat):
+		case (StateType::Feat):
 			return (gs.hasFeat(req.key) == req.expected);
 
 		// ITEM
-		case (RequirementType::Item):
+		case (StateType::Item):
 		{
 			if (req.min.has_value() && gs.getItem(req.key) < req.min)
 				return (false);
@@ -50,7 +50,7 @@ bool requirementMet(const Requirement &req, const GameState &gs)
 		}
 
 		// FACTION STANDING
-		case (RequirementType::Standing):
+		case (StateType::Standing):
 		{
 			if (req.min.has_value() && gs.factionStanding(req.key) < req.min)
 				return (false);
@@ -61,7 +61,7 @@ bool requirementMet(const Requirement &req, const GameState &gs)
 
 		default:
 		{		
-			std::cerr << "\n!!!\nDEBUG: RequirementType found no match case.\n!!!\n" << std::endl;
+			std::cerr << "\n!!!\nDEBUG: StateType found no match case.\n!!!\n" << std::endl;
 			return (false);}
 		}
 }

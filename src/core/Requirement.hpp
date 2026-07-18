@@ -5,20 +5,12 @@
 #include <vector>
 
 #include "GameState.hpp"
+#include "StateType.hpp"
 
-enum class RequirementType
-{
-	Flag,
-	Skill,
-	Counter,
-	Feat,
-	Item,
-	Standing
-};
 
 struct Requirement
 {
-	RequirementType type;	// what kind of info is checked
+	StateType type;	// what kind of info is checked
 	std::string key;		// that type's unique name, e.g. flag "intimidated_barkeeper"
 	std::optional<int> min;	// optional min value; initialized with !min.has_value()
 	std::optional<int> max; // optional max value
