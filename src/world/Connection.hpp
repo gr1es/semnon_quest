@@ -2,6 +2,9 @@
 
 #include <string>
 
+#include "Requirement.hpp"
+#include "Effect.hpp"
+
 struct Connection
 {
 		std::string label;
@@ -9,5 +12,7 @@ struct Connection
 		std::string destination_location;
 		/// destination scene ID; empty = use defaultSceneId() of destination location
 		std::string destination_scene;
-		// TODO: add "requires" and "effects"
+
+		std::vector<Requirement> requirements;
+		std::vector<Effect> effects;
 };

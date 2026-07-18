@@ -57,13 +57,17 @@ LocationManager LocationLoader::load(const std::string &directory)
 						type = OptionType::Action;
 					else
 						std::cerr << "WARNING: unknown option type \"" << opt["type"] << "\"\n";
-					scene_options.push_back({ opt["label"], type, opt["target_id"], "", "", opt["required_flag"] });
+					std::vector<Requirement> opt_requirements;
+					std::string opt_flag = opt["required_flag"];
+					if (!opt_flag.empty())
+						opt_requirements.push_back({ StateType::Flag, opt_flag, std::nullopt, std::nullopt, true });
+					scene_options.push_back({ opt["label"], type, opt["target_id"], "", "", opt_requirements, {} });
 				}
 				// connections
 				std::vector<Connection> scene_connections;
 				for (const auto &conn : scene["connections"])
 				{
-					scene_connections.push_back({ conn["label"], conn["destination_location"], conn["destination_scene"] });
+					scene_connections.push_back({ conn["label"], conn["destination_location"], conn["destination_scene"], {}, {} });
 				}
 				// --> go into temp Scene
 				Scene s(scene_id, scene_name, scene_descriptions, scene_options, scene_connections);

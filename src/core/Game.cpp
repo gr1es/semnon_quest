@@ -89,16 +89,16 @@ std::vector<Option> Game::buildOptions(const Scene &scene) const
 
 	// add dialogue options, only those with required flags
 	for (const Option &opt : scene.options())
-		if (opt.type == OptionType::Dialogue && (_gameState.getFlag(opt.required_flag) || opt.required_flag.empty()))
+		if (opt.type == OptionType::Dialogue && (requirementsMet(opt.requirements, _gameState)))
 			options.push_back(opt);
 	// add action options, only those with required flags
 	for (const Option &opt : scene.options())
-		if (opt.type == OptionType::Action && (_gameState.getFlag(opt.required_flag) || opt.required_flag.empty()))
+		if (opt.type == OptionType::Action && (requirementsMet(opt.requirements, _gameState)))
 			options.push_back(opt);
 	// add movement options
 	for (const Connection &conn : scene.connections())
-		options.push_back({ conn.label, OptionType::Move, "", conn.destination_location, conn.destination_scene, "" });
-	// TODO: add filtering for invisible options as soon as requires + effects are added to Connections
+		if (requirementsMet(conn.requirements, _gameState))
+			options.push_back({ conn.label, OptionType::Move, "", conn.destination_location, conn.destination_scene, conn.requirements, conn.effects});
 
 	// check if more than 10 options -> options 11+ are un-selectable by player
 	if (options.size() > 10)
@@ -166,37 +166,40 @@ bool Game::handleInput(const std::vector<Option> &options)
 		if (choice >= options.size())
 			continue;
 
+		// apply effects that are caused by this selection
+		applyEffects(options[choice].effects, _gameState);
+
 		switch (options[choice].type)
 		{
-		case OptionType::Dialogue:
-			// TODO: add execution
-			break;
-		case OptionType::Action:
-			// TODO: add execution
-			break;
-		case OptionType::Move:
-		{
-			const Option &chosen = options[choice];
-			if (chosen.destination_location.empty() && chosen.destination_scene.empty())
+			case OptionType::Dialogue:
+				// TODO: add execution
+				break;
+			case OptionType::Action:
+				// TODO: add execution
+				break;
+			case OptionType::Move:
 			{
-				std::cerr << "WARNING: Move option \"" << chosen.label << "\" has no destination\n";
+				const Option &chosen = options[choice];
+				if (chosen.destination_location.empty() && chosen.destination_scene.empty())
+				{
+					std::cerr << "WARNING: Move option \"" << chosen.label << "\" has no destination\n";
+					break;
+				}
+				// if we need to move to a new location: location and scene change
+				if (!chosen.destination_location.empty())
+				{
+					_gameState.setCurrentLocation(chosen.destination_location);
+					_gameState.discoverLocation(chosen.destination_location);
+					// new Location variable for readability's sake
+					const Location &new_loc = _locationManager.getLocation(chosen.destination_location);
+					// ternary: if destination_scene is empty, use defaultSceneId(), otherwise use destination_scene.
+					_gameState.setCurrentScene(chosen.destination_scene.empty() ? new_loc.defaultSceneId() : chosen.destination_scene);
+				}
+				// or else we stay at the same location, just scene changes
+				else
+					_gameState.setCurrentScene(chosen.destination_scene);
 				break;
 			}
-			// if we need to move to a new location: location and scene change
-			if (!chosen.destination_location.empty())
-			{
-				_gameState.setCurrentLocation(chosen.destination_location);
-				_gameState.discoverLocation(chosen.destination_location);
-				// new Location variable for readability's sake
-				const Location &new_loc = _locationManager.getLocation(chosen.destination_location);
-				// ternary: if destination_scene is empty, use defaultSceneId(), otherwise use destination_scene.
-				_gameState.setCurrentScene(chosen.destination_scene.empty() ? new_loc.defaultSceneId() : chosen.destination_scene);
-			}
-			// or else we stay at the same location, just scene changes
-			else
-				_gameState.setCurrentScene(chosen.destination_scene);
-			break;
-		}
 		}
 		return (true);
 	}
