@@ -171,7 +171,7 @@ All feats are stored as named booleans in `GameState` (`feats` map). Category is
 - Faction standing: how central is it to the narrative? Full system or light touch?
 - Node map: are adjacent-but-unvisited nodes visible (grayed out) or fully hidden?
 - Races: full list not yet decided beyond humans, wood elves, orcs.
-- **Combat resolution vs flat-check philosophy:** does combat mode stay deterministic (no RNG, matching the Skill / Check System rationale), or does grid combat introduce RNG (hit/damage rolls) per roguelike convention? Unresolved — these two instincts pull opposite directions.
+- ~~**Combat resolution vs flat-check philosophy**~~ — **Resolved:** narration stays flat/deterministic (Skill / Check System above). Combat mode uses RNG (hit/damage rolls, roguelike convention) — the two modes are allowed to use different resolution philosophies.
 - **Combat encounter authoring:** how are encounters defined and triggered from narration data (JSON schema for grid layout, enemy placement, entry/exit)? TBD.
 - **Skills/feats/level in combat:** how do narrative skills and feats carry into combat stats? Relationship TBD.
 - **ASCII/tile default:** ship ASCII-only first; if a tile toggle is added later, which is the default, and is it a settings option or player-facing hotkey (Cogmind-style)?
