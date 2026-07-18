@@ -16,6 +16,8 @@ set(SOURCES
 	src/main.cpp
 	src/core/Game.cpp
 	src/core/GameState.cpp
+	src/core/Requirement.cpp
+	src/core/Effect.cpp
 	src/ui/TerminalDisplay.cpp
 	src/ui/Menu.cpp
 	src/world/Location.cpp
