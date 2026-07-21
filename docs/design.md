@@ -163,6 +163,10 @@ All feats are stored as named booleans in `GameState` (`feats` map). Category is
 
 ---
 
+## Parked ideas (maybe, later)
+
+- **Custom JSON content-management tool:** a small bespoke editor/index for `data/locations/*.json` (browse a location, add dialogue/options via form fields, track which flags are set/required where) — considered instead of adopting an external narrative tool (ink/Yarn Spinner/articy:draft), since those would require reshaping `Requirement`/`Effect`/`GameState` around their own data model. Chris may build this himself later as a separate learning exercise once content volume actually makes it worthwhile — not blocking current work.
+
 ## Open Questions
 
 - Feat acquisition: when and how does the player select feats? Level-up screen? Found in world? Both?
@@ -175,3 +179,4 @@ All feats are stored as named booleans in `GameState` (`feats` map). Category is
 - **Combat encounter authoring:** how are encounters defined and triggered from narration data (JSON schema for grid layout, enemy placement, entry/exit)? TBD.
 - **Skills/feats/level in combat:** how do narrative skills and feats carry into combat stats? Relationship TBD.
 - **ASCII/tile default:** ship ASCII-only first; if a tile toggle is added later, which is the default, and is it a settings option or player-facing hotkey (Cogmind-style)?
+- **Locked/disclaimer options (Roadwarden-style, deferred to Phase B):** an option whose requirements aren't met could show a greyed-out, unselectable line instead of just disappearing (e.g. "You lack the strength to break down this door"), gated by its own separate "reveal" requirement so it doesn't spoil things the player hasn't discovered yet. Shelved for now — showing it in-place (where the option would have been, not grouped separately) requires interleaving numbered/unnumbered entries, which means changing the `Display::renderOptions()` interface itself. Not worth that cost in terminal debug mode; revisit once libtcod gives per-cell color/positioning for cheap. For now, unmet-requirement options are just hidden, full stop.
