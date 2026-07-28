@@ -7,10 +7,10 @@
 		{
 			"id": "paupers_district",
 			"name": "Pauper's District",
-			"descriptions": [
+			"variants": [
 				{
-					"required_flag": "",
-					"text": "Some drunkards linger in the shadows of nearby alleys.",
+					"requirements": [],
+					"description": "Some drunkards linger in the shadows of nearby alleys.",
 					"art": "houses.txt"
 				}
 			],

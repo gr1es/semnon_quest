@@ -10,18 +10,31 @@
             "type": "array",
             "items": {
                 "type": "object",
-                "required": ["id", "name", "descriptions", "options", "connections"],
+                "required": ["id", "name", "variants", "options", "connections"],
                 "properties": {
                     "id": { "type": "string" },
                     "name": { "type": "string" },
-                    "descriptions": {
+                    "variants": {
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "required": ["required_flag", "text", "art"],
+                            "required": ["description", "art"],
                             "properties": {
-                                "required_flag": { "type": "string" },
-                                "text": { "type": "string" },
+                                "requirements": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": ["type", "key"],
+                                        "properties": {
+                                            "type": { "enum": ["Flag", "Skill", "Counter", "Feat", "Item", "Standing"] },
+                                            "key": { "type": "string" },
+                                            "min": { "type": "integer" },
+                                            "max": { "type": "integer" },
+                                            "expected": { "type": "boolean" }
+                                        }
+                                    }
+                                },
+                                "description": { "type": "string" },
                                 "art": { "type": "string" }
                             }
                         }

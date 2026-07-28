@@ -7,10 +7,10 @@
 		{
 			"id": "common_room",
 			"name": "Common Room",
-			"descriptions": [
+			"variants": [
 				{
-					"required_flag": "",
-					"text": "A cozy fire crackles in a hearth at the far side of the room.",
+					"requirements": [],
+					"description": "A cozy fire crackles in a hearth at the far side of the room.",
 					"art": "pint.txt"
 				}
 			],

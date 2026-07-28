@@ -7,10 +7,10 @@
 		{
 			"id": "nave",
 			"name": "The Nave",
-			"descriptions": [
+			"variants": [
 				{
-					"required_flag": "",
-					"text": "Echoes of old chants and heroic memories resonate through the opulent halls.",
+					"requirements": [],
+					"description": "Echoes of old chants and heroic memories resonate through the opulent halls.",
 					"art": "church.txt"
 				}
 			],
