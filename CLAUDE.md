@@ -7,18 +7,20 @@ Location-based narrative RPG in C++17. Heavy text focus, ASCII art, strong react
 ## Current state
 
 All core classes are implemented and compiling cleanly:
-`GameState`, `Display`/`TerminalDisplay`, `Scene`, `Location`, `Connection`, `LocationManager`, `Menu`, `Option`, `Game`, plus the reactivity primitives `Effect` / `Requirement` / `StateType`.
+`GameState`, `Display`/`TerminalDisplay`, `Scene`, `SceneVariant`, `Location`, `Connection`, `LocationManager`, `Menu`, `Option`, `Game`, plus the reactivity primitives `Effect` / `Requirement` / `StateType`.
 
 Build system: root `Makefile` delegates to CMake. Executable lands at project root.
 - `make` — build
 - `make run` — build and launch
 - `make re` — full rebuild
 
-**Current:** JSON loading via `LocationLoader` (nlohmann/json, FetchContent). **Effects/requirements system now implemented:** `Effect` and `Requirement` structs + `StateType` enum (Flag/Skill/Counter/Feat/Item/Standing), applied by free functions `applyEffects()` and `requirementsMet()`. `Option` and `Connection` now each carry `std::vector<Requirement> requirements` + `std::vector<Effect> effects` (this replaced the old single `required_flag`). `buildOptions()` gates option/connection visibility via `requirementsMet()`; `handleInput()` runs `applyEffects()` on any selected option — so **Action options are now fully functional**. `Requirement` supports flag/feat `expected` bools and skill/counter/item/standing `min`/`max` ranges (`optional<int>`, with the `int > optional` guard handled correctly).
+**Current:** JSON loading via `LocationLoader` (nlohmann/json, FetchContent). **Effects/requirements system implemented:** `Effect` and `Requirement` structs + `StateType` enum (Flag/Skill/Counter/Feat/Item/Standing), applied by free functions `applyEffects()` and `requirementsMet()`. `Option` and `Connection` each carry `std::vector<Requirement> requirements` + `std::vector<Effect> effects`. `buildOptions()` gates visibility via `requirementsMet()`; `handleInput()` runs `applyEffects()` on any selected option (so **Action options are fully functional**). `Requirement` supports flag/feat `expected` bools and skill/counter/item/standing `min`/`max` ranges (`optional<int>`).
 
-**Known gap:** `LocationLoader` does NOT yet parse an `effects` array or a general `requirements` array from JSON — it only maps the legacy per-option `required_flag` to a single Flag requirement, and loads connections with empty requires/effects. `location.schema.json` is likewise not extended. So the system is runtime-ready but **not yet authorable from content**.
+**Variants leg (done — builds & runs):** scene descriptions replaced by requirement-gated `SceneVariant`s — struct `SceneVariant` (world/), JSON array key `variants`, text field `description`. `LocationLoader` has `stringToStateType` + `parseRequirements` helpers parsing a `requirements` array from JSON; `location.schema.json` and VSCode snippets migrated. Verified with `make run` (tavern↔street↔church traversal).
 
-**Next step:** (1) *finish the data path* — extend `LocationLoader` + `location.schema.json` (+ VSCode snippets) to author `effects` and rich `requirements`, so the just-built system is usable from JSON; (2) *dialogue system* (`DialogueNode`/`DialogueManager`, reusing `applyEffects`); (3) the pending `Display&`-injection refactor (Game still owns `TerminalDisplay` by value) that unblocks the libtcod backend and the `-t/--terminal` debug toggle.
+**Known gap:** **options and connections** are still authored with the legacy single `required_flag` — the loader maps that to one Flag requirement for options and loads connections with empty requires/effects; their JSON/schema/snippets are NOT yet on the `requirements`/`effects` arrays. (Scene variants ARE fully migrated.)
+
+**Next step:** (1) migrate **options & connections** to `requirements`/`effects` arrays (reuse `parseRequirements`, add `parseEffects`; update JSON + schema + snippets); (2) *dialogue system* (`DialogueNode`/`DialogueManager`, reusing `applyEffects`/`parseRequirements`); (3) the pending `Display&`-injection refactor (Game still owns `TerminalDisplay` by value) that unblocks the libtcod backend and the `-t/--terminal` debug toggle.
 
 ## Design direction (hybrid: narration + combat)
 
