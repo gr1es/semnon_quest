@@ -7,16 +7,18 @@ Location-based narrative RPG in C++17. Heavy text focus, ASCII art, strong react
 ## Current state
 
 All core classes are implemented and compiling cleanly:
-`GameState`, `Display`/`TerminalDisplay`, `Scene`, `Location`, `Connection`, `LocationManager`, `Game`.
+`GameState`, `Display`/`TerminalDisplay`, `Scene`, `Location`, `Connection`, `LocationManager`, `Menu`, `Option`, `Game`, plus the reactivity primitives `Effect` / `Requirement` / `StateType`.
 
 Build system: root `Makefile` delegates to CMake. Executable lands at project root.
 - `make` — build
 - `make run` — build and launch
 - `make re` — full rebuild
 
-**Current:** JSON loading system implemented — `LocationLoader` reads `data/locations/*.json` via `std::filesystem` and nlohmann/json (fetched via CMake FetchContent). `buildLocations()` removed from Game.cpp. JSON Schema + VSCode snippets set up for location authoring. `compile_commands.json` generated for clangd IntelliSense.
+**Current:** JSON loading via `LocationLoader` (nlohmann/json, FetchContent). **Effects/requirements system now implemented:** `Effect` and `Requirement` structs + `StateType` enum (Flag/Skill/Counter/Feat/Item/Standing), applied by free functions `applyEffects()` and `requirementsMet()`. `Option` and `Connection` now each carry `std::vector<Requirement> requirements` + `std::vector<Effect> effects` (this replaced the old single `required_flag`). `buildOptions()` gates option/connection visibility via `requirementsMet()`; `handleInput()` runs `applyEffects()` on any selected option — so **Action options are now fully functional**. `Requirement` supports flag/feat `expected` bools and skill/counter/item/standing `min`/`max` ranges (`optional<int>`, with the `int > optional` guard handled correctly).
 
-**Next step:** two parallel tracks — (1) *narration:* dialogue system (`DialogueNode`, `DialogueManager`, wiring into `handleInput()`); (2) *combat:* integrate libtcod (via vcpkg), migrate narration rendering into a `TcodDisplay` so both modes share one window, then build one small combat encounter to exercise libtcod.
+**Known gap:** `LocationLoader` does NOT yet parse an `effects` array or a general `requirements` array from JSON — it only maps the legacy per-option `required_flag` to a single Flag requirement, and loads connections with empty requires/effects. `location.schema.json` is likewise not extended. So the system is runtime-ready but **not yet authorable from content**.
+
+**Next step:** (1) *finish the data path* — extend `LocationLoader` + `location.schema.json` (+ VSCode snippets) to author `effects` and rich `requirements`, so the just-built system is usable from JSON; (2) *dialogue system* (`DialogueNode`/`DialogueManager`, reusing `applyEffects`); (3) the pending `Display&`-injection refactor (Game still owns `TerminalDisplay` by value) that unblocks the libtcod backend and the `-t/--terminal` debug toggle.
 
 ## Design direction (hybrid: narration + combat)
 
@@ -58,14 +60,14 @@ Agreed and implemented classes:
 - `Display` (abstract) / `TerminalDisplay` — rendering interface; `NcursesDisplay` planned for Phase B; includes `renderMessage()` for prompt/system text
 - `Scene` — owns flag-conditional descriptions (tuple: flag, text, art_path), `Option` list, and `Connection` list
 - `Location` — owns scenes (map) and `defaultSceneId()`; no connections (moved to Scene)
-- `Connection` — struct: `destination_location`, `destination_scene`, `label`; `requires`/`effects` planned
+- `Connection` — struct: `label`, `destination_location`, `destination_scene`, `requirements` (`vector<Requirement>`), `effects` (`vector<Effect>`) — requires/effects now implemented (JSON loader wiring still pending)
 - `LocationManager` — owns all locations by ID
 - `Game` — orchestrator; owns `GameState`, `TerminalDisplay`, `LocationManager`; loop split into `buildOptions()`, `renderScene()`, `handleInput()`, `showMenu()`, `startNewGame()`
 - `Menu` — owns entry list and input loop; `showMenu()` in Game constructs it and handles NewGame confirmation and Credits/Settings stubs
-- `Option` — struct: `label`, `type` (Dialogue/Action/Move), `target_id`, `destination_location`, `destination_scene`, `required_flag`
+- `Option` — struct: `label`, `type` (Dialogue/Action/Move), `target_id`, `destination_location`, `destination_scene`, `requirements` (`vector<Requirement>`), `effects` (`vector<Effect>`) — the old `required_flag` was replaced by the requirements vector
 - `Choice` — plain `enum class` in `Menu.hpp`: `Continue`, `NewGame`, `Settings`, `Credits`, `Exit`, `Quit`
 
-Planned but not yet started: `DialogueNode` / `DialogueResponse` / `Requirement`; `TcodDisplay` (libtcod backend for both modes — supersedes the old `NcursesDisplay`/`SfmlDisplay` plan); combat-mode classes — a mode state machine (`NarrationMode` / `CombatMode`) and `CombatEncounter` (grid, actors, turn loop) returning an outcome that writes `GameState` flags. `SfmlDisplay` demoted to a possible far-future polish path (real fonts/images) behind the same `Display` seam.
+Planned but not yet started: `DialogueNode` / `DialogueResponse`; `TcodDisplay` (libtcod backend for both modes — supersedes the old `NcursesDisplay`/`SfmlDisplay` plan); combat-mode classes — a mode state machine (`NarrationMode` / `CombatMode`) and `CombatEncounter` (grid, actors, turn loop) returning an outcome that writes `GameState` flags. `SfmlDisplay` demoted to a possible far-future polish path (real fonts/images) behind the same `Display` seam.
 
 ## Naming conventions
 
@@ -108,7 +110,7 @@ semnon_quest/
 
 ## Reactivity system (core feature)
 
-`GameState` tracks flags (bool), counters (int), skills (int), inventory (int), faction standing (int), feats (bool). Every location exit, dialogue option, and NPC interaction can carry `requires` and `effects` fields. Early obscure choices seed consequences that pay off chapters later.
+`GameState` tracks flags (bool), counters (int), skills (int), inventory (int), faction standing (int), feats (bool). Every location exit, dialogue option, and NPC interaction can carry `requires` and `effects` fields — **now implemented** as `Requirement`/`Effect` structs (keyed by `StateType`) with `requirementsMet()` (visibility gating) and `applyEffects()` (state mutation), the shared channel that combat outcomes will also use. Early obscure choices seed consequences that pay off chapters later.
 
 ## Working mode
 
