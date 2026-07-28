@@ -133,7 +133,7 @@ void Game::renderScene(const Location &loc, const Scene &scene, const std::vecto
 	// assemble player info here so it stays up-to-date
 	std::string player_info = _gameState.name() + " | " + _gameState.race() + " | Lv. " + std::to_string(_gameState.level());
 	_terminalDisplay.renderStatusBar(player_info, loc.name(), scene.name());
-	_terminalDisplay.renderMessage("\n");
+	_terminalDisplay.renderMessage("");
 }
 
 // returns false on EOF to signal the outer loop to exit
