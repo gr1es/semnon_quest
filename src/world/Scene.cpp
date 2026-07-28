@@ -1,13 +1,13 @@
 #include "Scene.hpp"
+#include "Requirement.hpp"
 #include <stdexcept>
 
 // constructor
 Scene::Scene(const std::string &scene_id,
 	const std::string &scene_name,
-	const std::vector<std::tuple<std::string, std::string, std::string>> &scene_descriptions,
+	const std::vector<SceneVariant> &scene_variants,
 	const std::vector<Option> &options,
-	const std::vector<Connection> &connections)
-	: _id(scene_id), _name(scene_name), _descriptions(scene_descriptions), _options(options), _connections(connections)
+	const std::vector<Connection> &connections) : _id(scene_id), _name(scene_name), _variants(scene_variants), _options(options), _connections(connections)
 {
 }
 
@@ -22,46 +22,40 @@ const std::string &Scene::name() const
 	return (_name);
 }
 
-// std::get<0>(vector entry) for flag name
-// std::get<1>(vector entry) for description
-// std::get<2>(vector entry) for art path
-// NOTE: returns the description assigned to the flag with the first match in GameState OR default description
 const std::string &Scene::getDescription(const GameState &state) const
 {
-	const std::string *fallback = nullptr;
-	for (size_t i = 0; i < _descriptions.size(); i++)
+	const std::string *desc = nullptr;
+	for (size_t i = 0; i < _variants.size(); i++)
 	{
-		// assign default description as fallback
-		if (std::get<0>(_descriptions[i]) == "")
-			fallback = &std::get<1>(_descriptions[i]);
-		// if the flag in _descriptions is contained and set to true in GameState's flags
+		// assign default description as fallback text
+		if (_variants[i].requirements.empty())
+			desc = &_variants[i].description;
+		// if there are requirements contained and they are fulfilled in the GameState
 		// --> return that!
-		else if (state.getFlag(std::get<0>(_descriptions[i])))
-			return (std::get<1>(_descriptions[i]));
+		else if (requirementsMet(_variants[i].requirements, state))
+			return (_variants[i].description);
 	}
-	// if no corresponding tuple flag entry was found or it was set to false(getFlag returned false)
-	// -> return fallback (default description)
-	if (fallback == nullptr)
+	// if the whole vector of descriptions was searched and there is no default text as fallback, something is wrong
+	if (desc == nullptr)
 		throw std::runtime_error("Scene " + _id + " has no default description.");
-	return (*fallback);
+	return (*desc);
 }
 
-// identical to above
-// NOTE: returns the art path assigned to the flag with the first match in GameState
+// mirrors logic of getter above
 const std::string &Scene::getArtPath(const GameState &state) const
 {
-	const std::string *fallback = nullptr;
+	const std::string *art_path = nullptr;
 	static const std::string empty = "";
-	for (size_t i = 0; i < _descriptions.size(); i++)
+	for (size_t i = 0; i < _variants.size(); i++)
 	{
-		if (std::get<0>(_descriptions[i]) == "")
-			fallback = &std::get<2>(_descriptions[i]);
-		else if (state.getFlag(std::get<0>(_descriptions[i])))
-			return (std::get<2>(_descriptions[i]));
+		if (_variants[i].requirements.empty())
+			art_path = &_variants[i].art;
+		else if (requirementsMet(_variants[i].requirements, state))
+			return (_variants[i].art);
 	}
-	if (fallback == nullptr)
+	if (art_path == nullptr)
 		return (empty);
-	return (*fallback);
+	return (*art_path);
 }
 
 const std::vector<Option> &Scene::options() const
