@@ -29,10 +29,11 @@ static std::vector<Requirement> parseRequirements(const nlohmann::json &reqs)
 	{
 		Requirement temp;
 		// .at is a nlohmann method that returns the value to the entered key
-		// throws if no match for key is found!
+		// throws if no match for key is found! the throw is desired to ring alarm about broken JSON
 		temp.type = stringToStateType(req.at("type"));
 		temp.key = req.at("key");
 		// min and max below rely on nlohmann's optional support; should work fine on newest versions
+		// these fields in temp are only populated when they exist in req
 		// alternative that always works:
 		// req.at("min").get<int>()
 		if (req.contains("min"))
@@ -46,6 +47,30 @@ static std::vector<Requirement> parseRequirements(const nlohmann::json &reqs)
 	return (res);
 }
 
+static std::vector<Effect> parseEffects(const nlohmann::json &effs)
+{
+	std::vector<Effect> res;
+
+	for (const nlohmann::json &eff : effs)
+	{
+		Effect temp;
+
+		// same as above: use of .at to generate a throw if required type or key fields do not exist (malformed JSON!)
+		temp.type = stringToStateType(eff.at("type"));
+		temp.key = eff.at("key");
+		// value: reads the value to the entered key and returns it OR, if the key is not there, returns the second argument (in this case 0)
+		// this is used here as fallback to default values should the JSON be missing these fields (perfectly fine possibility, hereby handled)
+		temp.delta = eff.value("delta", 0);
+		temp.flagValue = eff.value("flagValue", true);
+		res.push_back(temp);
+	}
+	return (res);
+}
+
+
+// load() builds entire world with principle: one *.json file = one Location
+// file -> scenes -> (variants | options | connections) -> requirements | effects
+// each Location object is built bottom up from its children
 LocationManager LocationLoader::load(const std::string &directory)
 {
 	// to be returned object
@@ -80,16 +105,15 @@ LocationManager LocationLoader::load(const std::string &directory)
 				for (const auto &var : scene["variants"])
 				{
 					std::string art = var.at("art");
+					// prepend art file name with standard path for ascii artworks
 					if (!art.empty())
 						art = "./data/ascii/" + art;
 					// the three elements of a SceneVariant are populated: requirements, description, art-path
 					// the requirements utilize the helper function written above
 					// it gets fed the nlohmann::json for the key "requirements", turned into a vector of Requirement objects
-					scene_variants.push_back({
-						parseRequirements(var.value("requirements", nlohmann::json::array())),
+					scene_variants.push_back({ parseRequirements(var.value("requirements", nlohmann::json::array())),
 						var.at("description"),
-						art
-					});
+						art });
 				}
 				// options
 				std::vector<Option> scene_options;
@@ -104,18 +128,26 @@ LocationManager LocationLoader::load(const std::string &directory)
 					else if (opt["type"] == "Action")
 						type = OptionType::Action;
 					else
+					{
 						std::cerr << "WARNING: unknown option type \"" << opt["type"] << "\"\n";
-					std::vector<Requirement> opt_requirements;
-					std::string opt_flag = opt["required_flag"];
-					if (!opt_flag.empty())
-						opt_requirements.push_back({ StateType::Flag, opt_flag, std::nullopt, std::nullopt, true });
-					scene_options.push_back({ opt["label"], type, opt["target_id"], "", "", opt_requirements, { } });
+						continue;
+					}
+					std::vector<Requirement> opt_requirements = parseRequirements(opt.value("requirements", nlohmann::json::array()));
+					std::vector<Effect> opt_effects = parseEffects(opt.value("effects", nlohmann::json::array()));
+
+					// "" are unused destination fields
+					// they are used in separate movement related Option objects and generated during runtime
+					scene_options.push_back({ opt["label"], type, opt["target_id"], "", "", opt_requirements, opt_effects });
 				}
 				// connections
 				std::vector<Connection> scene_connections;
 				for (const auto &conn : scene["connections"])
 				{
-					scene_connections.push_back({ conn["label"], conn["destination_location"], conn["destination_scene"], { }, { } });
+					// prepping temp values to later push into scene_connections
+					std::vector<Requirement> conn_requirements = parseRequirements(conn.value("requirements", nlohmann::json::array()));
+					std::vector<Effect> conn_effects = parseEffects(conn.value("effects", nlohmann::json::array()));
+
+					scene_connections.push_back({ conn["label"], conn["destination_location"], conn["destination_scene"], conn_requirements, conn_effects });
 				}
 				// --> go into temp Scene
 				Scene s(scene_id, scene_name, scene_variants, scene_options, scene_connections);
