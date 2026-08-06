@@ -50,7 +50,18 @@
 	"New Requirement": {
 		"scope": "json",
 		"prefix": "requirement",
-		"description": "Skeleton for a requirement entry (variant / option gating)",
+		"description": "Skeleton for a requirement entry (variant / option / connection gating)",
+		"body": [
+			"{",
+			"    \"type\": \"${1|Flag,Skill,Counter,Feat,Item,Standing|}\",",
+			"    \"key\": \"$2\"",
+			"}"
+		]
+	},
+	"New Effect": {
+		"scope": "json",
+		"prefix": "effect",
+		"description": "Skeleton for an effect entry (option / connection state change)",
 		"body": [
 			"{",
 			"    \"type\": \"${1|Flag,Skill,Counter,Feat,Item,Standing|}\",",
@@ -61,20 +72,21 @@
 	"New Option": {
 		"scope": "json",
 		"prefix": "option",
-		"description": "Skeleton for an option entry",
+		"description": "Skeleton for an option entry (Dialogue / Action)",
 		"body": [
 			"{",
 			"    \"label\": \"$1\",",
-			"    \"type\": \"${2|Dialogue,Action,Move|}\",",
+			"    \"type\": \"${2|Dialogue,Action|}\",",
 			"    \"target_id\": \"$3\",",
-			"    \"required_flag\": \"$4\"",
+			"    \"requirements\": [],",
+			"    \"effects\": []",
 			"}"
 		]
 	},
 	"New Connection": {
 		"scope": "json",
 		"prefix": "connection",
-		"description": "Skeleton for a connection entry",
+		"description": "Skeleton for a connection entry (exit to another scene/location)",
 		"body": [
 			"{",
 			"    \"label\": \"$1\",",
