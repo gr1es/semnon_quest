@@ -53,7 +53,11 @@ void TerminalDisplay::renderStatusBar(const std::string &player_info, const std:
 char TerminalDisplay::getInput()
 {
 	char input;
-	std::cin >> input;
+	// on end-of-input (e.g. CTRL+D) the input extraction fails
+	// so if the piping into input fails, EOF is returned so calling functions can react can stop
+	// without this, input keeps a garbage value and the input loop spins endlessly
+	if (!(std::cin >> input))
+		return (EOF);
 	// .peek() returns the next character in the input sequence, without extracting it
 	// this guards against input of >1 characters
 	if (std::cin.peek() != '\n' && std::cin.peek() != EOF)
