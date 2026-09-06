@@ -1,7 +1,11 @@
 #include "Game.hpp"
 #include "Menu.hpp"
 #include "LocationLoader.hpp"
+#include "Requirement.hpp"
+#include "Effect.hpp"
 #include <iostream>
+#include <cctype>
+#include <cstdio>
 
 // initializes GameState with placeholder player data
 // TODO: remove hardcoded parameters

@@ -3,7 +3,6 @@
 #include "Scene.hpp"
 #include <map>
 #include <string>
-#include <vector>
 
 class Location
 {

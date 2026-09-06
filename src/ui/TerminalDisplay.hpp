@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Display.hpp"
+#include <string>
+#include <vector>
 
 class TerminalDisplay : public Display
 {
