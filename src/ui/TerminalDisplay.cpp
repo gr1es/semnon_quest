@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <cstdio>
 
 void TerminalDisplay::clearScreen()
 {

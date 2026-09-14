@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "Requirement.hpp"
 #include "Effect.hpp"

@@ -1,4 +1,6 @@
 #include "Menu.hpp"
+#include <cctype>
+#include <cstdio>
 
 Menu::Menu(Display &display, bool is_ingame)
 	: _display(display), _isIngame(is_ingame)
