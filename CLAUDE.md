@@ -20,7 +20,28 @@ Build system: root `Makefile` delegates to CMake. Executable lands at project ro
 
 **Options/connections leg (done — builds & runs):** the loader now parses `requirements` AND `effects` arrays for options and connections via `parseRequirements` + `parseEffects` (legacy `required_flag` fully removed). `location.schema.json` refactored to `$defs`+`$ref` for the shared requirement/effect shapes; options drop `required_flag` and their authored `type` is restricted to Dialogue/Action (Move is synthesized at runtime from connections in `buildOptions()`, never authored). Snippets updated (added `effect`, reworked `option`). All three data files validate against the schema. **The whole requirements/effects reactivity data path — variants, options, connections — is now authorable from JSON.**
 
-**Next step:** (1) *dialogue system* — `DialogueNode`/`DialogueManager`, `data/dialogues/*.json` + a loader (mirror `LocationLoader`, reuse `parseRequirements`/`parseEffects`), wired into the `OptionType::Dialogue` branch of `handleInput()` via `Option::target_id`; (2) the pending `Display&`-injection refactor (Game still owns `TerminalDisplay` by value) that unblocks the libtcod backend and the `-t/--terminal` debug toggle.
+**Next step — dialogue system (designed, not yet on disk on this machine):**
+
+Data model mirrors the world model 1:1, so the same reactivity plumbing reuses directly:
+
+| Dialogue | mirrors | World |
+|---|---|---|
+| `Dialogue` (id, `start_node`, `map<string, DialogueNode> nodes`) | ↔ | `Location` |
+| `DialogueNode` (id, `text`, `vector<DialogueResponse> responses`) | ↔ | `Scene` |
+| `DialogueResponse` (`label`, `vector<Requirement> requirements`, `vector<Effect> effects`, `target_node`; empty `target_node` = end conversation) | ↔ | `Option` |
+
+Named `DialogueResponse`, not `DialogueOption`/`DialogueChoice` — those names collide with the existing `Option` struct and the `Menu`'s `Choice` enum. Gating/effects on `DialogueResponse` are the *only* place the dialogue system touches requirements/effects (no gates at the node or dialogue level) — reuses `Requirement`/`Effect`/`requirementsMet()`/`applyEffects()` as-is.
+
+Build order:
+1. Three structs above in `src/narrative/` (`Dialogue.hpp`, `DialogueNode.hpp`, `DialogueResponse.hpp`), each `#include`-ing `Requirement.hpp`/`Effect.hpp` as needed — plain POD, no methods.
+2. **Extract shared JSON helpers** — `stringToStateType`/`parseRequirements`/`parseEffects` currently live as `static` functions inside `LocationLoader.cpp`; `DialogueLoader` needs the latter two. Move to a new shared file (e.g. `src/utils/ReactivityParser.hpp`/`.cpp`): header declares `parseRequirements`/`parseEffects` (non-static now), the `.cpp` keeps `stringToStateType` `static`/file-local (only the two parse functions need external linkage). Update `LocationLoader.cpp` to include it instead of defining them; add the new `.cpp` to `CMakeLists.txt`.
+3. `DialogueLoader` (mirrors `LocationLoader`) reading `data/dialogues/*.json` into a `DialogueManager` (mirrors `LocationManager`, storage keyed by id).
+4. Runtime loop — a `Game::runDialogue(const std::string &id)` method (parallel to `showMenu()`): render current node's `text` via `Display`, show responses filtered by `requirementsMet()`, read choice, `applyEffects()` on the chosen response, follow `target_node` or end if empty.
+5. Wire in: load dialogues in `startNewGame()`; the `OptionType::Dialogue` branch in `handleInput()` (currently a `TODO` stub) calls `runDialogue(chosen.target_id)`.
+
+JSON shape (`data/dialogues/*.json`): top-level `id`/`start_node`/`nodes[]`; each node has `id`/`text`/`responses[]`; each response has `label`/`requirements[]`/`effects[]`/`target_node` — same `requirements`/`effects` array shape already used by variants/options/connections (reuses the schema's `$defs`).
+
+**Then:** the pending `Display&`-injection refactor (Game still owns `TerminalDisplay` by value) that unblocks the libtcod backend and the `-t/--terminal` debug toggle.
 
 ## Design direction (hybrid: narration + combat)
 
@@ -59,17 +80,17 @@ Major pivot from "pure text adventure." The game is now a **hybrid of two modes 
 
 Agreed and implemented classes:
 - `GameState` — all mutable player/world state: flags, skills, counters, feats, inventory, faction standing, location/scene tracking
-- `Display` (abstract) / `TerminalDisplay` — rendering interface; `NcursesDisplay` planned for Phase B; includes `renderMessage()` for prompt/system text
+- `Display` (abstract) / `TerminalDisplay` — rendering interface; `TcodDisplay` planned for Phase B (libtcod, see _Design direction_); includes `renderMessage()` for prompt/system text
 - `Scene` — owns flag-conditional descriptions (tuple: flag, text, art_path), `Option` list, and `Connection` list
 - `Location` — owns scenes (map) and `defaultSceneId()`; no connections (moved to Scene)
-- `Connection` — struct: `label`, `destination_location`, `destination_scene`, `requirements` (`vector<Requirement>`), `effects` (`vector<Effect>`) — requires/effects now implemented (JSON loader wiring still pending)
+- `Connection` — struct: `label`, `destination_location`, `destination_scene`, `requirements` (`vector<Requirement>`), `effects` (`vector<Effect>`) — fully implemented, including JSON loader wiring
 - `LocationManager` — owns all locations by ID
 - `Game` — orchestrator; owns `GameState`, `TerminalDisplay`, `LocationManager`; loop split into `buildOptions()`, `renderScene()`, `handleInput()`, `showMenu()`, `startNewGame()`
 - `Menu` — owns entry list and input loop; `showMenu()` in Game constructs it and handles NewGame confirmation and Credits/Settings stubs
 - `Option` — struct: `label`, `type` (Dialogue/Action/Move), `target_id`, `destination_location`, `destination_scene`, `requirements` (`vector<Requirement>`), `effects` (`vector<Effect>`) — the old `required_flag` was replaced by the requirements vector
 - `Choice` — plain `enum class` in `Menu.hpp`: `Continue`, `NewGame`, `Settings`, `Credits`, `Exit`, `Quit`
 
-Planned but not yet started: `DialogueNode` / `DialogueResponse`; `TcodDisplay` (libtcod backend for both modes — supersedes the old `NcursesDisplay`/`SfmlDisplay` plan); combat-mode classes — a mode state machine (`NarrationMode` / `CombatMode`) and `CombatEncounter` (grid, actors, turn loop) returning an outcome that writes `GameState` flags. `SfmlDisplay` demoted to a possible far-future polish path (real fonts/images) behind the same `Display` seam.
+Planned but not yet started: `Dialogue` / `DialogueNode` / `DialogueResponse` + `DialogueLoader` / `DialogueManager` (see the detailed plan under _Current state → Next step_); `TcodDisplay` (libtcod backend for both modes — supersedes the old `NcursesDisplay`/`SfmlDisplay` plan); combat-mode classes — a mode state machine (`NarrationMode` / `CombatMode`) and `CombatEncounter` (grid, actors, turn loop) returning an outcome that writes `GameState` flags. `SfmlDisplay` demoted to a possible far-future polish path (real fonts/images) behind the same `Display` seam.
 
 ## Naming conventions
 
