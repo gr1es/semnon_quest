@@ -1,14 +1,14 @@
 # This file is maintained by Claude (https://claude.ai).
 # Contents may be updated automatically during development sessions.
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 project(semnon_quest)
 
 # generates compile_commands.json for clangd/IntelliSense
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# use C++17
-set(CMAKE_CXX_STANDARD 17)
+# use C++23 (private project — 42's C++98/C++17 limit doesn't apply here)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # all source files — add new .cpp files here as the project grows
@@ -24,6 +24,7 @@ set(SOURCES
 	src/world/LocationManager.cpp
 	src/world/Scene.cpp
 	src/world/DialogueManager.cpp
+	src/narrative/Dialogue.cpp
 	src/utils/LocationLoader.cpp
 	src/utils/ReactivityParser.cpp
 )
