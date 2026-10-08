@@ -2,7 +2,7 @@
 
 # semnon_quest
 
-Location-based narrative RPG in C++17. Heavy text focus, ASCII art, strong reactivity to player choices. **Hybrid design:** a text-adventure narration mode (scene-to-scene navigation, visual-novel-like) plus short turn-based grid combat sequences, both rendered in a single window via libtcod. See _Design direction_ below.
+Location-based narrative RPG in C++23 (switched from C++17 on 2026-10-08 — private project, 42's version limit doesn't apply; C++20/23 features like `map::contains`, designated initializers and `std::format` are fair game). Heavy text focus, ASCII art, strong reactivity to player choices. **Hybrid design:** a text-adventure narration mode (scene-to-scene navigation, visual-novel-like) plus short turn-based grid combat sequences, both rendered in a single window via libtcod. See _Design direction_ below.
 
 ## Current state
 
