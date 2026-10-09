@@ -1,7 +1,19 @@
 #include "Game.hpp"
+#include <iostream>
+#include <stdexcept>
 
 int main()
 {
 	Game game;
-	game.run();
+
+	try
+	{
+		game.run();
+	}
+	catch (const std::exception &e)
+	{
+		std::cout << e.what();
+	}
+
+	return (0);
 }
