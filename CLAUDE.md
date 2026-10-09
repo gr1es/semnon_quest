@@ -7,7 +7,7 @@ Location-based narrative RPG in C++23 (switched from C++17 on 2026-10-08 — pri
 ## Current state
 
 All core classes are implemented and compiling cleanly:
-`GameState`, `Display`/`TerminalDisplay`, `Scene`, `SceneVariant`, `Location`, `Connection`, `LocationManager`, `Menu`, `Option`, `Game`, plus the reactivity primitives `Effect` / `Requirement` / `StateType`.
+`GameState`, `Display`/`TerminalDisplay`, `Scene`, `SceneVariant`, `Location`, `Connection`, `LocationManager`, `Menu`, `Option`, `Game`, plus the reactivity primitives `Effect` / `Requirement` / `StateType`, the dialogue types `Dialogue` / `DialogueNode` / `DialogueResponse` + `DialogueManager`, and the shared JSON helper `ReactivityParser`.
 
 Build system: root `Makefile` delegates to CMake. Executable lands at project root.
 - `make` — build
@@ -16,28 +16,30 @@ Build system: root `Makefile` delegates to CMake. Executable lands at project ro
 
 **Current:** JSON loading via `LocationLoader` (nlohmann/json, FetchContent). **Effects/requirements system implemented:** `Effect` and `Requirement` structs + `StateType` enum (Flag/Skill/Counter/Feat/Item/Standing), applied by free functions `applyEffects()` and `requirementsMet()`. `Option` and `Connection` each carry `std::vector<Requirement> requirements` + `std::vector<Effect> effects`. `buildOptions()` gates visibility via `requirementsMet()`; `handleInput()` runs `applyEffects()` on any selected option (so **Action options are fully functional**). `Requirement` supports flag/feat `expected` bools and skill/counter/item/standing `min`/`max` ranges (`optional<int>`).
 
-**Variants leg (done — builds & runs):** scene descriptions replaced by requirement-gated `SceneVariant`s — struct `SceneVariant` (world/), JSON array key `variants`, text field `description`. `LocationLoader` has `stringToStateType` + `parseRequirements` helpers parsing a `requirements` array from JSON; `location.schema.json` and VSCode snippets migrated. Verified with `make run` (tavern↔street↔church traversal).
+**Variants leg (done — builds & runs):** scene descriptions replaced by requirement-gated `SceneVariant`s — struct `SceneVariant` (world/), JSON array key `variants`, text field `description`. a `requirements` array is parsed from JSON by `parseRequirements` (now in `ReactivityParser`, see below); `location.schema.json` and VSCode snippets migrated. Verified with `make run` (tavern↔street↔church traversal).
 
 **Options/connections leg (done — builds & runs):** the loader now parses `requirements` AND `effects` arrays for options and connections via `parseRequirements` + `parseEffects` (legacy `required_flag` fully removed). `location.schema.json` refactored to `$defs`+`$ref` for the shared requirement/effect shapes; options drop `required_flag` and their authored `type` is restricted to Dialogue/Action (Move is synthesized at runtime from connections in `buildOptions()`, never authored). Snippets updated (added `effect`, reworked `option`). All three data files validate against the schema. **The whole requirements/effects reactivity data path — variants, options, connections — is now authorable from JSON.**
 
-**Next step — dialogue system (designed, not yet on disk on this machine):**
+**Next step — dialogue system (in progress, status per step below):**
 
 Data model mirrors the world model 1:1, so the same reactivity plumbing reuses directly:
 
 | Dialogue | mirrors | World |
 |---|---|---|
-| `Dialogue` (id, `start_node`, `map<string, DialogueNode> nodes`) | ↔ | `Location` |
+| `Dialogue` class (`const` members; `id()`, `startNode()`, `nodes()`, `getNode()`; constructor validates the node chain) | ↔ | `Location` class |
 | `DialogueNode` (id, `text`, `vector<DialogueResponse> responses`) | ↔ | `Scene` |
 | `DialogueResponse` (`label`, `vector<Requirement> requirements`, `vector<Effect> effects`, `target_node`; empty `target_node` = end conversation) | ↔ | `Option` |
 
 Named `DialogueResponse`, not `DialogueOption`/`DialogueChoice` — those names collide with the existing `Option` struct and the `Menu`'s `Choice` enum. Gating/effects on `DialogueResponse` are the *only* place the dialogue system touches requirements/effects (no gates at the node or dialogue level) — reuses `Requirement`/`Effect`/`requirementsMet()`/`applyEffects()` as-is.
 
-Build order:
-1. Three structs above in `src/narrative/` (`Dialogue.hpp`, `DialogueNode.hpp`, `DialogueResponse.hpp`), each `#include`-ing `Requirement.hpp`/`Effect.hpp` as needed — plain POD, no methods.
-2. **Extract shared JSON helpers** — `stringToStateType`/`parseRequirements`/`parseEffects` currently live as `static` functions inside `LocationLoader.cpp`; `DialogueLoader` needs the latter two. Move to a new shared file (e.g. `src/utils/ReactivityParser.hpp`/`.cpp`): header declares `parseRequirements`/`parseEffects` (non-static now), the `.cpp` keeps `stringToStateType` `static`/file-local (only the two parse functions need external linkage). Update `LocationLoader.cpp` to include it instead of defining them; add the new `.cpp` to `CMakeLists.txt`.
-3. `DialogueLoader` (mirrors `LocationLoader`) reading `data/dialogues/*.json` into a `DialogueManager` (mirrors `LocationManager`, storage keyed by id).
-4. Runtime loop — a `Game::runDialogue(const std::string &id)` method (parallel to `showMenu()`): render current node's `text` via `Display`, show responses filtered by `requirementsMet()`, read choice, `applyEffects()` on the chosen response, follow `target_node` or end if empty.
-5. Wire in: load dialogues in `startNewGame()`; the `OptionType::Dialogue` branch in `handleInput()` (currently a `TODO` stub) calls `runDialogue(chosen.target_id)`.
+Build order (status as of 2026-10-09):
+1. **[done]** Data types in `src/narrative/`. `DialogueNode`/`DialogueResponse` are plain structs. `Dialogue` is a class (all members `const`): its constructor throws unless `start_node` is non-empty and exists and every non-empty `target_node` exists; `getNode(id)` throws on unknown ids. Mirror on the world side: the `Location` constructor throws if `default_scene` is empty or doesn't exist.
+2. **[done]** Shared JSON helpers in `src/utils/ReactivityParser.{hpp,cpp}`: `parseRequirements`/`parseEffects` (external linkage), `stringToStateType` file-local. Used by `LocationLoader`; `DialogueLoader` will use it too.
+3. **[done]** `DialogueManager` (`src/world/`), an exact mirror of `LocationManager`: `getDialogue` (throws), `addDialogue` (keyed by `dialogue.id()`; a repeated id is ignored by design, see `LocationManager`), `hasDialogue`.
+   **[todo]** `DialogueLoader`: header declares `static DialogueManager load(dir)`; `DialogueLoader.cpp` still to write (mirror `LocationLoader`, reading `data/dialogues/*.json`; build each `Dialogue` through its constructor; never use `map::operator[]` on dialogue maps, since `Dialogue` has no default constructor).
+4. **[todo]** Cross-reference pass at the end of `startNewGame()`, after both loads: connection destinations must name an existing location and scene; Dialogue-type options' `target_id` must name an existing dialogue. Can't live in either manager (neither sees the other, and `directory_iterator` order means a target file may not be loaded yet). Needs read-only accessors (a manager's full map, `Location::scenes()`).
+5. **[todo]** Runtime loop — a `Game::runDialogue(const std::string &id)` method (parallel to `showMenu()`): render current node's `text` via `Display`, show responses filtered by `requirementsMet()`, read choice, `applyEffects()` on the chosen response, follow `target_node` or end if empty.
+6. **[todo]** Wire in: load dialogues in `startNewGame()`; the `OptionType::Dialogue` branch in `handleInput()` (currently a `TODO` stub) calls `runDialogue(chosen.target_id)`.
 
 JSON shape (`data/dialogues/*.json`): top-level `id`/`start_node`/`nodes[]`; each node has `id`/`text`/`responses[]`; each response has `label`/`requirements[]`/`effects[]`/`target_node` — same `requirements`/`effects` array shape already used by variants/options/connections (reuses the schema's `$defs`).
 
@@ -81,16 +83,16 @@ Major pivot from "pure text adventure." The game is now a **hybrid of two modes 
 Agreed and implemented classes:
 - `GameState` — all mutable player/world state: flags, skills, counters, feats, inventory, faction standing, location/scene tracking
 - `Display` (abstract) / `TerminalDisplay` — rendering interface; `TcodDisplay` planned for Phase B (libtcod, see _Design direction_); includes `renderMessage()` for prompt/system text
-- `Scene` — owns flag-conditional descriptions (tuple: flag, text, art_path), `Option` list, and `Connection` list
-- `Location` — owns scenes (map) and `defaultSceneId()`; no connections (moved to Scene)
+- `Scene` — owns requirement-gated `SceneVariant`s (`getDescription()`/`getArtPath()` return the first variant whose requirements are met, falling back to the one with no requirements), an `Option` list, and a `Connection` list
+- `Location` — owns scenes (map) and `defaultSceneId()`; no connections (moved to Scene); constructor throws if the default scene is empty or missing
 - `Connection` — struct: `label`, `destination_location`, `destination_scene`, `requirements` (`vector<Requirement>`), `effects` (`vector<Effect>`) — fully implemented, including JSON loader wiring
-- `LocationManager` — owns all locations by ID
+- `LocationManager` — owns all locations by ID. `addLocation` silently ignores an id that's already present — **by design, never an error**: content may be added again when it's unlocked on different occasions. Same for `DialogueManager::addDialogue`. Don't "fix" this into a throw.
 - `Game` — orchestrator; owns `GameState`, `TerminalDisplay`, `LocationManager`; loop split into `buildOptions()`, `renderScene()`, `handleInput()`, `showMenu()`, `startNewGame()`
 - `Menu` — owns entry list and input loop; `showMenu()` in Game constructs it and handles NewGame confirmation and Credits/Settings stubs
 - `Option` — struct: `label`, `type` (Dialogue/Action/Move), `target_id`, `destination_location`, `destination_scene`, `requirements` (`vector<Requirement>`), `effects` (`vector<Effect>`) — the old `required_flag` was replaced by the requirements vector
 - `Choice` — plain `enum class` in `Menu.hpp`: `Continue`, `NewGame`, `Settings`, `Credits`, `Exit`, `Quit`
 
-Planned but not yet started: `Dialogue` / `DialogueNode` / `DialogueResponse` + `DialogueLoader` / `DialogueManager` (see the detailed plan under _Current state → Next step_); `TcodDisplay` (libtcod backend for both modes — supersedes the old `NcursesDisplay`/`SfmlDisplay` plan); combat-mode classes — a mode state machine (`NarrationMode` / `CombatMode`) and `CombatEncounter` (grid, actors, turn loop) returning an outcome that writes `GameState` flags. `SfmlDisplay` demoted to a possible far-future polish path (real fonts/images) behind the same `Display` seam.
+In progress: the dialogue system (see _Current state → Next step_ for per-step status). Planned but not yet started: `TcodDisplay` (libtcod backend for both modes — supersedes the old `NcursesDisplay`/`SfmlDisplay` plan); combat-mode classes — a mode state machine (`NarrationMode` / `CombatMode`) and `CombatEncounter` (grid, actors, turn loop) returning an outcome that writes `GameState` flags. `SfmlDisplay` demoted to a possible far-future polish path (real fonts/images) behind the same `Display` seam.
 
 ## Naming conventions
 
@@ -100,6 +102,14 @@ Planned but not yet started: `Dialogue` / `DialogueNode` / `DialogueResponse` + 
 - Method parameters: `snake_case`
 - State flags: specific names — e.g. `"intimidated_barkeep_at_tavern"`, not `"talked_to_npc"`
 - Git commits: Conventional Commits style — `type(scope): description`, lowercase, imperative mood
+- Error/warning messages (unified 2026-10-09), format `SEVERITY: Where: message.`, e.g. `ERROR: Dialogue: barkeep_chat has no node greeting.`
+  - `ERROR` for every `throw` (`std::runtime_error`; it ends the program), `WARNING` for every `std::cerr` line that lets the program continue. No other severities, no banners.
+  - `Where` = the source file's class/module name (`Dialogue`, `LocationManager`, `Game`, `ReactivityParser`, `Effect`, ...), so the file to open is visible at a glance.
+  - Missing things: `has no X` (short form, no "a", no "defined"); a value is named when it exists (`has no start node greting.`). Unrecognised type strings: `unknown X`.
+  - Always include the offending value(s); if one message can come from several places, say which (`requested by getSkill`).
+  - Names: if a matching variable/type exists in scope, use its exact spelling (`art_path`, `OptionType`, `StateType`, `Move`); otherwise natural language.
+  - **Ids are never quoted** (single words); **player-facing text that can be long — response/option labels — is quoted** with `"…"`.
+  - One line per message; every message ends with a period; built with string concatenation (not `std::format`).
 
 ## Include paths
 
