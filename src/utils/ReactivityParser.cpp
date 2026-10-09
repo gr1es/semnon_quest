@@ -1,24 +1,6 @@
 #include "ReactivityParser.hpp"
 #include "StateType.hpp"
 #include <string>
-#include <stdexcept>
-
-static StateType stringToStateType(const std::string &s)
-{
-	if (s == "Flag")
-		return (StateType::Flag);
-	if (s == "Skill")
-		return (StateType::Skill);
-	if (s == "Counter")
-		return (StateType::Counter);
-	if (s == "Feat")
-		return (StateType::Feat);
-	if (s == "Item")
-		return (StateType::Item);
-	if (s == "Standing")
-		return (StateType::Standing);
-	throw std::runtime_error("ERROR: ReactivityParser: unknown StateType " + s + ".");
-}
 
 std::vector<Requirement> parseRequirements(const nlohmann::json &reqs)
 {
