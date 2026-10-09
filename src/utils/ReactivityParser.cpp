@@ -17,7 +17,7 @@ static StateType stringToStateType(const std::string &s)
 		return (StateType::Item);
 	if (s == "Standing")
 		return (StateType::Standing);
-	throw(std::invalid_argument("ERROR: ReactivityParser found no match for StateType."));
+	throw std::runtime_error("ERROR: ReactivityParser: unknown StateType " + s + ".");
 }
 
 std::vector<Requirement> parseRequirements(const nlohmann::json &reqs)

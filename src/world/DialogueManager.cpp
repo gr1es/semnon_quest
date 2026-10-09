@@ -6,7 +6,7 @@ const Dialogue &DialogueManager::getDialogue(const std::string &dialogue_id) con
 	auto it = _dialogues.find(dialogue_id);
 	if (it != _dialogues.end())
 		return (it->second);
-	throw std::runtime_error("DialogueManager: dialogue " + dialogue_id + " not found.");
+	throw std::runtime_error("ERROR: DialogueManager: has no dialogue " + dialogue_id + ".");
 }
 
 void DialogueManager::addDialogue(const Dialogue &dialogue)

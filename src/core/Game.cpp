@@ -106,7 +106,7 @@ std::vector<Option> Game::buildOptions(const Scene &scene) const
 
 	// check if more than 10 options -> options 11+ are un-selectable by player
 	if (options.size() > 10)
-		std::cerr << "WARNING: scene \"" << scene.id() << "\" has more than 10 options -- excess options unreachable\n";
+		std::cerr << "WARNING: Game: scene " << scene.id() << " has more than 10 options, excess options are unreachable.\n";
 
 	return (options);
 }
@@ -122,8 +122,6 @@ void Game::renderScene(const Location &loc, const Scene &scene, const std::vecto
 		_terminalDisplay.renderArt(scene.getArtPath(_gameState));
 		_terminalDisplay.renderMessage("\n");
 	}
-	else
-		std::cerr << ("No art_path here.\n");
 	_terminalDisplay.renderDescription(scene.getDescription(_gameState));
 	_terminalDisplay.renderMessage("\n");
 
@@ -186,7 +184,7 @@ bool Game::handleInput(const std::vector<Option> &options)
 				const Option &chosen = options[choice];
 				if (chosen.destination_location.empty() && chosen.destination_scene.empty())
 				{
-					std::cerr << "WARNING: Move option \"" << chosen.label << "\" has no destination\n";
+					std::cerr << "WARNING: Game: Move option \"" << chosen.label << "\" has no destination.\n";
 					break;
 				}
 				// if we need to move to a new location: location and scene change

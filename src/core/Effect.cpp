@@ -49,7 +49,7 @@ void applyEffect(const Effect &eff, GameState &gs)
 		}
 
 		default:
-			std::cerr << "\n!!!\nDEBUG: StateType found no match case.\n!!!\n" << std::endl;
+			std::cerr << "WARNING: Effect: applyEffect has no case for StateType " << static_cast<int>(eff.type) << ".\n";
 	}
 }
 

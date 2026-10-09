@@ -37,7 +37,7 @@ const std::string &Scene::getDescription(const GameState &state) const
 	}
 	// if the whole vector of descriptions was searched and there is no default text as fallback, something is wrong
 	if (desc == nullptr)
-		throw std::runtime_error("Scene " + _id + " has no default description.");
+		throw std::runtime_error("ERROR: Scene: " + _id + " has no default description.");
 	return (*desc);
 }
 

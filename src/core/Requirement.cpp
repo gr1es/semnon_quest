@@ -60,10 +60,11 @@ bool requirementMet(const Requirement &req, const GameState &gs)
 		}
 
 		default:
-		{		
-			std::cerr << "\n!!!\nDEBUG: StateType found no match case.\n!!!\n" << std::endl;
-			return (false);}
+		{
+			std::cerr << "WARNING: Requirement: requirementMet has no case for StateType " << static_cast<int>(req.type) << ".\n";
+			return (false);
 		}
+	}
 }
 
 // check for multiple requirements

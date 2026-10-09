@@ -14,10 +14,10 @@ Location::Location(
 {
 	// check for missing default scene to fail early if missing
 	if (_defaultSceneId.empty())
-		throw std::runtime_error("Location " + _id + " has no default scene ID.");
+		throw std::runtime_error("ERROR: Location: " + _id + " has no default scene.");
 	// check if the default scene is actually loaded
 	if (!_scenes.contains(_defaultSceneId))
-		throw std::runtime_error("Location " + _id + " has default scene " + _defaultSceneId + " that does not exist.");
+		throw std::runtime_error("ERROR: Location: " + _id + " has no default scene " + _defaultSceneId + ".");
 }
 
 // getters
@@ -42,5 +42,5 @@ const Scene &Location::getScene(const std::string &scene_id) const
 	auto it = _scenes.find(scene_id);
 	if (it != _scenes.end())
 		return (it->second);
-	throw std::runtime_error("Location " + _id + " has no scene " + scene_id + ".");
+	throw std::runtime_error("ERROR: Location: " + _id + " has no scene " + scene_id + ".");
 }

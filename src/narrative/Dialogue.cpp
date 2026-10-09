@@ -8,14 +8,14 @@ Dialogue::Dialogue(const std::string &dialogue_id,
 {
 	// check for missing starting node to fail early if missing
 	if (_startNode.empty())
-		throw std::runtime_error("Dialogue " + _id +" has no start node defined.");
+		throw std::runtime_error("ERROR: Dialogue: " + _id + " has no start node.");
 	if (!_nodes.contains(_startNode))
-		throw std::runtime_error("Dialogue " + _id +" has a start node " + _startNode + " that does not exist.");
+		throw std::runtime_error("ERROR: Dialogue: " + _id + " has no start node " + _startNode + ".");
 	// check if dialogue chain is complete (target nodes in Dialogue Responses exist)
 	for (const auto &[node_id, node] : _nodes)
 		for (const DialogueResponse &response : node.responses)
 			if (!response.target_node.empty() && !_nodes.contains(response.target_node))
-				throw std::runtime_error("Dialogue " + _id + " has response\n\"" + response.label + "\"\nin " + node_id + " with non-existent target node " + response.target_node + ".");
+				throw std::runtime_error("ERROR: Dialogue: " + _id + " has no node " + response.target_node + ", targeted by response \"" + response.label + "\" in node " + node_id + ".");
 }
 
 // getters
@@ -39,5 +39,5 @@ const DialogueNode &Dialogue::getNode(const std::string &node_id) const
 	auto it = _nodes.find(node_id);
 	if (it != _nodes.end())
 		return (it->second);
-	throw std::runtime_error("Dialogue " + _id + " has no node " + node_id + ".");
+	throw std::runtime_error("ERROR: Dialogue: " + _id + " has no node " + node_id + ".");
 }

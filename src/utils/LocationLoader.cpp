@@ -68,7 +68,8 @@ LocationManager LocationLoader::load(const std::string &directory)
 						type = OptionType::Action;
 					else
 					{
-						std::cerr << "WARNING: unknown option type \"" << opt["type"] << "\"\n";
+						// streaming a json string directly would print it with its JSON quotes -> extract the plain string
+						std::cerr << "WARNING: LocationLoader: unknown OptionType " << (opt["type"].is_string() ? opt["type"].get<std::string>() : opt["type"].dump()) << ".\n";
 						continue;
 					}
 					std::vector<Requirement> opt_requirements = parseRequirements(opt.value("requirements", nlohmann::json::array()));
