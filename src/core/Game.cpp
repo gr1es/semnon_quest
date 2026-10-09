@@ -163,7 +163,7 @@ bool Game::handleInput(const std::vector<Option> &options)
 		if (input == '0')
 			choice = 9;
 		else
-			choice = input - '1'; // the same as: (input - '0') - 1; stoi and substraction
+			choice = static_cast<size_t>(input - '1'); // the same as: (input - '0') - 1; stoi and substraction
 		// reprompt if choice is outside options range
 		if (choice >= options.size())
 			continue;
