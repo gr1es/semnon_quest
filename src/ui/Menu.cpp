@@ -26,7 +26,7 @@ Choice Menu::getChoice() const
 	char input = _display.getInput();
 	if (input == EOF)
 		return (Choice::Quit);
-	if (!isdigit(input) || !(input >= '1' && (input - '0') <= _entries.size()))
+	if (!isdigit(input) || !(input >= '1' && static_cast<size_t>(input - '0') <= _entries.size()))
 		return (getChoice());
 	else
 	{
