@@ -61,7 +61,7 @@ bool requirementMet(const Requirement &req, const GameState &gs)
 
 		default:
 		{
-			std::cerr << "WARNING: Requirement: requirementMet has no case for StateType " << static_cast<int>(req.type) << ".\n";
+			std::cerr << "WARNING: Requirement: requirementMet has no case for StateType " << enumToString(req.type) << ".\n";
 			return (false);
 		}
 	}

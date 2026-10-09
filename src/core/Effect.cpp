@@ -49,7 +49,7 @@ void applyEffect(const Effect &eff, GameState &gs)
 		}
 
 		default:
-			std::cerr << "WARNING: Effect: applyEffect has no case for StateType " << static_cast<int>(eff.type) << ".\n";
+			std::cerr << "WARNING: Effect: applyEffect has no case for StateType " << enumToString(eff.type) << ".\n";
 	}
 }
 
