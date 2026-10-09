@@ -14,6 +14,8 @@ Build system: root `Makefile` delegates to CMake. Executable lands at project ro
 - `make run` — build and launch
 - `make re` — full rebuild
 
+Compiler flags (explained in `CMakeLists.txt` comments): strict warning set `-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wsign-conversion -Wold-style-cast -Wnon-virtual-dtor -Woverloaded-virtual` plus `-Werror` (switchable via option `SEMNON_WARNINGS_AS_ERRORS`, e.g. if another machine's compiler version reports new warnings); standard C++ only (`CMAKE_CXX_EXTENSIONS OFF`); nlohmann/json included as `SYSTEM`. AddressSanitizer + UBSan available via option `SEMNON_SANITIZERS`, off until `libasan`/`libubsan` are installed (`sudo dnf install libasan libubsan`). `make re` wipes `build/`, so change an option's default in `CMakeLists.txt` rather than passing `-D`.
+
 **Current:** JSON loading via `LocationLoader` (nlohmann/json, FetchContent). **Effects/requirements system implemented:** `Effect` and `Requirement` structs + `StateType` enum (Flag/Skill/Counter/Feat/Item/Standing), applied by free functions `applyEffects()` and `requirementsMet()`. `Option` and `Connection` each carry `std::vector<Requirement> requirements` + `std::vector<Effect> effects`. `buildOptions()` gates visibility via `requirementsMet()`; `handleInput()` runs `applyEffects()` on any selected option (so **Action options are fully functional**). `Requirement` supports flag/feat `expected` bools and skill/counter/item/standing `min`/`max` ranges (`optional<int>`).
 
 **Variants leg (done — builds & runs):** scene descriptions replaced by requirement-gated `SceneVariant`s — struct `SceneVariant` (world/), JSON array key `variants`, text field `description`. a `requirements` array is parsed from JSON by `parseRequirements` (now in `ReactivityParser`, see below); `location.schema.json` and VSCode snippets migrated. Verified with `make run` (tavern↔street↔church traversal).
@@ -44,6 +46,19 @@ Build order (status as of 2026-10-09):
 JSON shape (`data/dialogues/*.json`): top-level `id`/`start_node`/`nodes[]`; each node has `id`/`text`/`responses[]`; each response has `label`/`requirements[]`/`effects[]`/`target_node` — same `requirements`/`effects` array shape already used by variants/options/connections (reuses the schema's `$defs`).
 
 **Then:** the pending `Display&`-injection refactor (Game still owns `TerminalDisplay` by value) that unblocks the libtcod backend and the `-t/--terminal` debug toggle.
+
+## Next session plan (decided 2026-10-09 — bring this up at the start of the next session)
+
+**Main focus: the `Move` rework (item 5).** Also close the load-error gaps (items 1–4). The dialogue system (`DialogueLoader.cpp` onward) continues after that.
+
+1. **Missing `data/locations` directory** gives an unformatted `std::filesystem::filesystem_error`: the `directory_iterator` line in `LocationLoader::load()` sits outside the per-file `try`. Fix: check `std::filesystem::is_directory(directory)` first and throw `ERROR: LocationLoader: couldn't open directory <dir>.`
+2. **`Scene`'s constructor validates nothing.** A scene without a default variant (one with no requirements) loads fine and only throws when the player enters it (`Scene::getDescription()`). Add a constructor check, mirroring `Location`/`Dialogue`, so it fails at load with the file name.
+3. **Duplicate scene ids inside one location file** are silently dropped by `scenes.insert`. Decide: error (most likely a copy-paste mistake) or ignore, as for locations/dialogues.
+4. **Wording mismatch:** the loader's Move message says `..., as movement belongs in connections.`; the example in `docs/message_conventions.md` has no "as". Align them.
+5. **Design: `Move` is the odd one out in `OptionType`.** It's never authored, only synthesized from connections, so `stringToOptionType` accepts a value content must never use, the loader needs a special check, and `Option` carries two destination fields that authored options always leave empty. Candidate fix: `OptionType` = `Dialogue`/`Action` only; `buildOptions()` returns its own runtime menu-entry type (label + kind `Dialogue`/`Action`/`Move` + reference to the source `Option`/`Connection`). Decided: this is the **main focus of the next session**, done before continuing the dialogue system rather than waiting for the dialogue wiring.
+6. Optional: `sudo dnf install libasan libubsan` on each machine, then switch `SEMNON_SANITIZERS` on.
+
+Things that don't throw but arguably should: the `Scene` constructor (item 2) and `scenes.insert` (item 3). Deliberately left as is: `std::ifstream` (an unreadable file surfaces as a parse error) and `addLocation`/`addDialogue` ignoring duplicate ids (by design).
 
 ## Design direction (hybrid: narration + combat)
 
@@ -102,14 +117,7 @@ In progress: the dialogue system (see _Current state → Next step_ for per-step
 - Method parameters: `snake_case`
 - State flags: specific names — e.g. `"intimidated_barkeep_at_tavern"`, not `"talked_to_npc"`
 - Git commits: Conventional Commits style — `type(scope): description`, lowercase, imperative mood
-- Error/warning messages (unified 2026-10-09), format `SEVERITY: Where: message.`, e.g. `ERROR: Dialogue: barkeep_chat has no node greeting.`
-  - `ERROR` for every `throw` (`std::runtime_error`; it ends the program), `WARNING` for every `std::cerr` line that lets the program continue. No other severities, no banners.
-  - `Where` = the source file's class/module name (`Dialogue`, `LocationManager`, `Game`, `ReactivityParser`, `Effect`, ...), so the file to open is visible at a glance.
-  - Missing things: `has no X` (short form, no "a", no "defined"); a value is named when it exists (`has no start node greting.`). Unrecognised type strings: `unknown X`.
-  - Always include the offending value(s); if one message can come from several places, say which (`requested by getSkill`).
-  - Names: if a matching variable/type exists in scope, use its exact spelling (`art_path`, `OptionType`, `StateType`, `Move`); otherwise natural language.
-  - **Ids are never quoted** (single words); **player-facing text that can be long — response/option labels — is quoted** with `"…"`.
-  - One line per message; every message ends with a period; built with string concatenation (not `std::format`).
+- Error/warning messages: follow [docs/message_conventions.md](docs/message_conventions.md). In short: `SEVERITY: Where: message.` (`ERROR` = throw, `WARNING` = program continues), `has no X` / `unknown X`, the offending value always named, ids unquoted, long labels quoted, one line, trailing period, string concatenation.
 
 ## Include paths
 
